@@ -34,8 +34,6 @@ import android.util.Log;
 import android.widget.RelativeLayout;
 
 import com.github.barteksc.pdfviewer.exception.PageRenderingException;
-import com.github.barteksc.pdfviewer.link.DefaultLinkHandler;
-import com.github.barteksc.pdfviewer.link.LinkHandler;
 import com.github.barteksc.pdfviewer.listener.Callbacks;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
@@ -284,9 +282,6 @@ public class PDFView extends RelativeLayout {
     private PdfiumCore pdfiumCore;
 
     private PdfDocument pdfDocument;
-
-    private LinkHandler linkHandler = new DefaultLinkHandler(PDFView.this);
-
 
     private ScrollHandle scrollHandle;
 
@@ -1594,7 +1589,6 @@ public class PDFView extends RelativeLayout {
             PDFView.this.setOnRenderListener(onRenderListener);
             PDFView.this.callbacks.setOnTap(onTapListener);
             PDFView.this.callbacks.setOnLongPress(onLongPressListener);
-            PDFView.this.callbacks.setLinkHandler(linkHandler);
             PDFView.this.setOnPageErrorListener(onPageErrorListener);
             PDFView.this.enableSwipe(enableSwipe);
             PDFView.this.enableDoubletap(enableDoubletap);
@@ -1636,7 +1630,8 @@ public class PDFView extends RelativeLayout {
             PDFView.this.callbacks.setOnTap(onTapListener);
             PDFView.this.callbacks.setOnLongPress(onLongPressListener);
             PDFView.this.callbacks.setOnPageError(onPageErrorListener);
-            PDFView.this.callbacks.setLinkHandler(linkHandler);
+            // TODO: uncomment once we have Link
+//            PDFView.this.callbacks.setLinkHandler(linkHandler);
 
             if (currPage != -1) {
                 // stay in curr page
