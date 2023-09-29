@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdkVersion 33
@@ -15,6 +14,4 @@ android {
 
 dependencies {
     api 'com.github.barteksc:pdfium-android:1.7.1'
-//    api 'com.github.hamidrezaamz:android-support-pdfium:1.0.8'
-    implementation 'androidx.core:core-ktx:1.10.1'
 }
