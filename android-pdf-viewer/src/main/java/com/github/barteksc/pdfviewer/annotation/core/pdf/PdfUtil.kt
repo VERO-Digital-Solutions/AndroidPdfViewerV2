@@ -115,7 +115,7 @@ object PdfUtil {
      * Page number is always 1 for now */
     @Throws(IOException::class)
     @JvmStatic
-    private fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
+    fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
         if (filePath.isEmpty()) throw Exception("Input file is empty")
         val file = File(filePath)
         if (!file.exists()) throw Exception("Input file does not exist")
