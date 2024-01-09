@@ -251,24 +251,8 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     @Override
     public void onLongPress(MotionEvent e) {
-        if (!pdfView.isAnnotationHandlingEnabled()) {
-            return;
-        }
         Log.i(TAG, "onLongPress --> X: " + e.getX() + " | Y: " + e.getY());
         Log.i(TAG, "--------------------------------------------------");
-        new Handler().post(() -> {
-            try {
-                boolean isAdded = AnnotationManager.addRectangleAnnotation(this, e, currUri, pdfView);
-                if (isAdded) {
-                    configurator.refresh(pdfView.getCurrentPage()); // refresh view
-                } else {
-                    Toast.makeText(this, "Annotation couldn't be added", Toast.LENGTH_LONG).show();
-                }
-                com.github.barteksc.sample.DebugUtilKt.logInfo(TAG, "addAnnotation: isAdded = " + isAdded);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
     }
 
     @Override
