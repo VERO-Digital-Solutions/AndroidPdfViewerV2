@@ -40,18 +40,14 @@ import androidx.core.content.ContextCompat;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager;
-import com.github.barteksc.pdfviewer.link.LinkHandler;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnLongPressListener;
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnTapListener;
-import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.util.PublicValue;
-import com.github.barteksc.pdfviewer.util.UriUtils;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -62,14 +58,13 @@ import org.androidannotations.annotations.ViewById;
 import org.benjinus.pdfium.Bookmark;
 import org.benjinus.pdfium.Meta;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 @EActivity(R.layout.activity_main)
 @OptionsMenu(R.menu.options)
 public class PDFViewActivity extends AppCompatActivity implements OnPageChangeListener, OnLoadCompleteListener, OnErrorListener,
-        OnPageErrorListener, OnTapListener, OnLongPressListener, LinkHandler {
+        OnPageErrorListener, OnTapListener, OnLongPressListener {
 
     private static final String TAG = PDFViewActivity.class.getSimpleName();
 
@@ -176,8 +171,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                 .onPageError(this)
                 .onTap(this)
                 .onLongPress(this)
-                .onError(this)
-                .linkHandler(this);
+                .onError(this);
 
         this.configurator.load();
     }
@@ -277,25 +271,6 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
         });
     }
 
-    public void showSnackbar(String referenceHash) {
-        String message = "Annotation with " + referenceHash;
-        Snackbar snackbar = Snackbar.make(pdfView, message, Snackbar.LENGTH_LONG);
-        snackbar.setAction("Delete", v -> new Handler().post(() -> {
-            try {
-                boolean isRemoved = AnnotationManager.removeAnnotation(this, currUri, referenceHash);
-                if (isRemoved) {
-                    configurator.refresh(pdfView.getCurrentPage()); // refresh view
-                } else {
-                    com.github.barteksc.sample.DebugUtilKt.toast(this, "Annotation couldn't be removed");
-                }
-                com.github.barteksc.sample.DebugUtilKt.logInfo(TAG, "removeAnnotation: isRemoved = " + isRemoved);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }));
-        snackbar.show();
-    }
-
     @Override
     public boolean onTap(MotionEvent e) {
         Log.i(TAG, "onTap --> X: " + e.getX() + " | Y: " + e.getY());
@@ -306,12 +281,6 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
         Log.i(TAG, "--------------------------------------------------");
 
         return false;
-    }
-
-    @Override
-    public void handleLinkEvent(LinkTapEvent event) {
-        String referenceHash = event.getLink().getUri();
-        showSnackbar(referenceHash);
     }
 
     @Override
