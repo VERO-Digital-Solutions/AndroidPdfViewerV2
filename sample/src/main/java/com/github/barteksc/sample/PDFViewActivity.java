@@ -16,6 +16,7 @@
 package com.github.barteksc.sample;
 
 import static com.github.barteksc.pdfviewer.util.PublicValue.KEY_REQUEST_FILE_PICKER;
+import static com.github.barteksc.sample.DebugUtilKt.toast;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -138,27 +139,11 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     }
 
     private void displayFileFromUri() {
-
         if (currUri == null) {
-            com.github.barteksc.sample.DebugUtilKt.toast(this, "currUri is null");
+            toast(this, "currUri is null");
             return;
         }
-
-        // TODO: 1/17/21  DON NOT FORGET TO USE YOUR FILE HANDLING SCENARIO FOR NEW ANDROID APIs
-
-        // this is OK
-        // /storage/emulated/0/Download/PDF_ENGLISH.pdf
-        // this.currFilePath = UriUtils.getPathFromUri(MainActivity.this, currUri);
-
-        // this is not OK
-        // /data/user/0/ir.vasl.magicalpdfeditor/files/PDF_ENGLISH.pdf
-        // this.currFilePath = PublicFunction.getFilePathForN(MainActivity.this, currUri);
-
-        // this is working
-        // /storage/emulated/0/Download/PDF_ENGLISH.pdf
-
         pdfFileName = getFileName(currUri);
-
         this.configurator = pdfView.fromUri(currUri)
                 .defaultPage(PublicValue.DEFAULT_PAGE_NUMBER)
                 .onPageChange(this)
@@ -269,6 +254,6 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     @Override
     public void onError(Throwable t) {
-        DebugUtilKt.toast(this, Objects.requireNonNull(t.getMessage()));
+        toast(this, Objects.requireNonNull(t.getMessage()));
     }
 }
