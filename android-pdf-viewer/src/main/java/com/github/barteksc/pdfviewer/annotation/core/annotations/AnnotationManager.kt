@@ -5,7 +5,6 @@ import android.graphics.PointF
 import android.net.Uri
 import android.view.MotionEvent
 import com.github.barteksc.pdfviewer.PDFView
-import com.github.barteksc.pdfviewer.R
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.ocg.OCGRemover
 import com.github.barteksc.pdfviewer.util.PublicFunction.Companion.getByteFromDrawable
@@ -654,7 +653,8 @@ object AnnotationManager {
         context: Context,
         e: MotionEvent?,
         currUri: Uri,
-        pdfView: PDFView
+        pdfView: PDFView,
+        drawableResource: Int
     ): Boolean {
         // Generate reference hash
         val referenceHash = StringBuilder()
@@ -663,7 +663,7 @@ object AnnotationManager {
             .toString()
 
         // Get image marker
-        val OCGCover = getByteFromDrawable(context, R.drawable.annotation_marker)
+        val OCGCover = getByteFromDrawable(context, drawableResource)
         val filePath = UriUtils.getPathFromUri(context, currUri)
         val pointF: PointF = pdfView.convertScreenPintsToPdfCoordinates(e)
 
