@@ -1,14 +1,2 @@
-import org.gradle.api.initialization.resolve.RepositoriesMode
-
 include ':android-pdf-viewer'
 include ':sample'
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-        mavenLocal()
-    }
-}
