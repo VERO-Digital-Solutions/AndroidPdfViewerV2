@@ -1,15 +1,16 @@
 package com.github.barteksc.pdfviewer.annotation.core.annotations
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.net.Uri
 import android.view.MotionEvent
+import androidx.core.net.toFile
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.ocg.OCGRemover
-import com.github.barteksc.pdfviewer.util.PublicFunction.Companion.getByteFromDrawable
 import com.github.barteksc.pdfviewer.util.PublicValue
-import com.github.barteksc.pdfviewer.util.UriUtils
 import com.github.barteksc.pdfviewer.util.logInfo
 import com.lowagie.text.Annotation
 import com.lowagie.text.Element
@@ -30,6 +31,7 @@ import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfStamper
 import com.lowagie.text.pdf.PdfString
 import java.awt.Color
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -204,7 +206,6 @@ object AnnotationManager {
     @Throws(FileNotFoundException::class, IOException::class)
     @JvmStatic
     fun addRectangleAnnotation(
-        context: Context,
         e: MotionEvent,
         currUri: Uri,
         pdfView: PDFView
@@ -213,8 +214,7 @@ object AnnotationManager {
         var page = pdfView.currentPage
         page++
 
-        val file = getFileFromUri(context, currUri)
-
+        val file = currUri.toFile()
         val referenceHash = StringBuilder()
             .append(PublicValue.KEY_REFERENCE_HASH)
             .append(UUID.randomUUID().toString())
@@ -290,7 +290,6 @@ object AnnotationManager {
     @Throws(FileNotFoundException::class, IOException::class)
     @JvmStatic
     fun addCircleAnnotation(
-        context: Context,
         e: MotionEvent,
         currUri: Uri,
         pdfView: PDFView
@@ -299,7 +298,7 @@ object AnnotationManager {
         var page = pdfView.currentPage
         page++
 
-        val file = getFileFromUri(context, currUri)
+        val file = currUri.toFile()
 
         val referenceHash = StringBuilder()
             .append(PublicValue.KEY_REFERENCE_HASH)
@@ -375,7 +374,6 @@ object AnnotationManager {
     @Throws(FileNotFoundException::class, IOException::class)
     @JvmStatic
     fun addLineAnnotation(
-        context: Context,
         e: MotionEvent,
         currUri: Uri,
         pdfView: PDFView
@@ -384,7 +382,7 @@ object AnnotationManager {
         var page = pdfView.currentPage
         page++
 
-        val file = getFileFromUri(context, currUri)
+        val file = currUri.toFile()
 
         val referenceHash = StringBuilder()
             .append(PublicValue.KEY_REFERENCE_HASH)
@@ -462,7 +460,6 @@ object AnnotationManager {
     /** Check this if trying to add freehand drawing to PDF */
     @JvmStatic
     fun addLines(
-        context: Context,
         currUri: Uri,
         pdfView: PDFView,
     ): Boolean {
@@ -470,7 +467,7 @@ object AnnotationManager {
         // Page Starts From 1 In OpenPdf
         page++
 
-        val file = getFileFromUri(context, currUri)
+        val file = currUri.toFile()
 
         var isAdded = false
         try {
@@ -547,7 +544,6 @@ object AnnotationManager {
     @Throws(FileNotFoundException::class, IOException::class)
     @JvmStatic
     fun addTextAnnotation(
-        context: Context,
         e: MotionEvent,
         currUri: Uri,
         pdfView: PDFView
@@ -556,7 +552,7 @@ object AnnotationManager {
         var page = pdfView.currentPage
         page++
 
-        val file = getFileFromUri(context, currUri)
+        val file = currUri.toFile()
 
         val referenceHash = StringBuilder()
             .append(PublicValue.KEY_REFERENCE_HASH)
@@ -646,6 +642,14 @@ object AnnotationManager {
         return isAdded
     }
 
+    /** Creates image marker for image annotation */
+    private fun getByteFromDrawable(context: Context, resDrawable: Int): ByteArray {
+        val bitmap = BitmapFactory.decodeResource(context.resources, resDrawable)
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
     /** Adds default image marker to the PDF document */
     @Throws(IOException::class)
     @JvmStatic
@@ -664,7 +668,6 @@ object AnnotationManager {
 
         // Get image marker
         val OCGCover = getByteFromDrawable(context, drawableResource)
-        val filePath = UriUtils.getPathFromUri(context, currUri)
         val pointF: PointF = pdfView.convertScreenPintsToPdfCoordinates(e)
 
         var isAdded = false
@@ -672,7 +675,7 @@ object AnnotationManager {
             isAdded =
                 addOCG(
                     pointF,
-                    filePath,
+                    currUri,
                     pdfView.currentPage,
                     referenceHash,
                     OCGCover,
@@ -690,7 +693,7 @@ object AnnotationManager {
     @Throws(java.lang.Exception::class)
     fun addOCG(
         pointF: PointF,
-        filePath: String?,
+        currUri: Uri,
         currPage: Int,
         referenceHash: String?,
         OCGCover: ByteArray?,
@@ -711,9 +714,7 @@ object AnnotationManager {
             OCGHeight = PublicValue.DEFAULT_OCG_HEIGHT
         }
 
-        if (filePath.isNullOrEmpty()) throw java.lang.Exception("Input file is empty")
-        val file = File(filePath)
-        if (!file.exists()) throw java.lang.Exception("Input file does not exists")
+        val file = currUri.toFile()
         return try {
 
             // inout stream from file
@@ -780,11 +781,10 @@ object AnnotationManager {
     /** Removes annotation from the PDF document */
     @Throws(IOException::class)
     @JvmStatic
-    fun removeAnnotation(context: Context, currUri: Uri, referenceHash: String?): Boolean {
+    fun removeAnnotation(currUri: Uri, referenceHash: String): Boolean {
         var isRemoved = false
         try {
-            val filePath = UriUtils.getPathFromUri(context, currUri)
-            isRemoved = removeOCG(filePath, referenceHash)
+            isRemoved = removeOCG(currUri, referenceHash)
             logInfo(TAG, "removeAnnotation: isRemoved = $isRemoved")
         } catch (e1: java.lang.Exception) {
             e1.printStackTrace()
@@ -793,11 +793,9 @@ object AnnotationManager {
     }
 
     @Throws(java.lang.Exception::class)
-    fun removeOCG(filePath: String?, annotationHash: String?): Boolean {
-        if (filePath.isNullOrEmpty()) throw java.lang.Exception("Input file is empty")
-        val file = File(filePath)
-        if (!file.exists()) throw java.lang.Exception("Input file does not exists")
+    fun removeOCG(currUri: Uri, annotationHash: String): Boolean {
         return try {
+            val file = currUri.toFile()
 
             // inout stream from file
             val inputStream: InputStream = FileInputStream(file)
@@ -827,12 +825,11 @@ object AnnotationManager {
 
     /** Removes all annotations from a given PDF file */
     @JvmStatic
-    @Throws(java.lang.Exception::class)
-    fun removeAnnotationsFromPdf(filePath: String?): Boolean {
-        if (filePath.isNullOrEmpty()) throw java.lang.Exception("Input file is empty")
-        val file = File(filePath)
-        if (!file.exists()) throw java.lang.Exception("Input file does not exist")
-
+    @Throws(FileNotFoundException::class)
+    fun removeAnnotationsFromPdf(pdfFilePath: String): Boolean {
+        if (pdfFilePath.isEmpty()) throw FileNotFoundException("Input file is empty")
+        val file = File(pdfFilePath)
+        if (!file.exists()) throw FileNotFoundException("Input file does not exist")
         return try {
             // input stream from file
             val inputStream: InputStream = FileInputStream(file)
@@ -857,18 +854,5 @@ object AnnotationManager {
         } catch (e: Exception) {
             throw Exception(e.message)
         }
-    }
-
-    @Throws(FileNotFoundException::class)
-    private fun getFileFromUri(context: Context, currUri: Uri): File {
-        val filePath = UriUtils.getPathFromUri(context, currUri)
-        if (filePath.isNullOrEmpty()) {
-            throw FileNotFoundException()
-        }
-        val file = File(filePath)
-        if (!file.exists()) {
-            throw FileNotFoundException()
-        }
-        return file
     }
 }

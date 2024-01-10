@@ -18,17 +18,15 @@ package com.github.barteksc.sample;
 import static com.github.barteksc.pdfviewer.util.PublicValue.KEY_REQUEST_FILE_PICKER;
 import static com.github.barteksc.sample.DebugUtilKt.toast;
 
-import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Toast;
@@ -59,6 +57,7 @@ import org.androidannotations.annotations.ViewById;
 import org.benjinus.pdfium.Bookmark;
 import org.benjinus.pdfium.Meta;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -131,56 +130,57 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
         if (resultCode == RESULT_OK && requestCode == PublicValue.KEY_REQUEST_FILE_PICKER) {
             if (data != null && data.getData() != null) {
                 this.currUri = data.getData();
-                displayFileFromUri();
+                displayFileFromUri(getApplicationContext());
             } else {
                 Log.e(TAG, "onActivityResult, requestCode:" + requestCode + "resultCode:" + resultCode);
             }
         }
     }
 
-    private void displayFileFromUri() {
+    private void displayFileFromUri(Context context) {
         if (currUri == null) {
             toast(this, "currUri is null");
             return;
         }
-        pdfFileName = getFileName(currUri);
-        this.configurator = pdfView.fromUri(currUri)
-                .defaultPage(PublicValue.DEFAULT_PAGE_NUMBER)
-                .onPageChange(this)
-                .enableAnnotationRendering(true)
-                .enableAnnotationHandling(true)
-                .onLoad(this)
-                .enableSwipe(true)
-                .scrollHandle(new DefaultScrollHandle(this))
-                .spacing(10) // in dp
-                .onPageError(this)
-                .onTap(this)
-                .onLongPress(this)
-                .onError(this);
+        String uriName = DebugUtilKt.getFileName(currUri, context);
+        if (uriName != null) {
+            // From the uri, create a file in internal storage
+            File pdfFile = DebugUtilKt.toFileOrNull(currUri, context, uriName);
 
-        this.configurator.load();
+            // Get the uri for the created file
+            Uri copiedPdfFileUri = Uri.fromFile(pdfFile);
+            this.currUri = copiedPdfFileUri;
+
+            if (pdfFile != null) {
+                pdfFileName = pdfFile.getName();
+                this.configurator = pdfView.fromUri(currUri)
+                        .defaultPage(PublicValue.DEFAULT_PAGE_NUMBER)
+                        .onPageChange(this)
+                        .enableAnnotationRendering(true)
+                        .enableAnnotationHandling(true)
+                        .onLoad(this)
+                        .enableSwipe(true)
+                        .scrollHandle(new DefaultScrollHandle(this))
+                        .spacing(10) // in dp
+                        .onPageError(this)
+                        .onTap(this)
+                        .onLongPress(this)
+                        .onError(this);
+
+                this.configurator.load();
+            } else {
+                toast(this, "Couldn't copy file to internal storage");
+            }
+        }
+        else{
+            toast(this, "Couldn't extract uri's name");
+        }
     }
 
     @Override
     public void onPageChanged(int page, int pageCount) {
         pageNumber = page;
         setTitle(String.format("%s %s / %s", pdfFileName, page + 1, pageCount));
-    }
-
-    @SuppressLint("Range")
-    public String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                }
-            }
-        }
-        if (result == null) {
-            result = uri.getLastPathSegment();
-        }
-        return result;
     }
 
     @Override
