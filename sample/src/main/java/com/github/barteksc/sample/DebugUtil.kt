@@ -32,17 +32,14 @@ internal fun logError(tag: String = "", text: String) {
 fun Context.copyUriToFile(uri: Uri, destinationFile: File) {
     contentResolver.openInputStream(uri)?.use { inputStream ->
         FileOutputStream(destinationFile).use { outputStream ->
-            val buffer = ByteArray(4 * 1024)
-            var read: Int
-            while (inputStream.read(buffer).also { read = it } != -1) {
-                outputStream.write(buffer, 0, read)
-            }
-            outputStream.flush()
+            inputStream.copyTo(outputStream)
         }
     }
 }
 
 fun Uri.toFileOrNull(context: Context, fileName: String?): File? {
+    if (fileName == null) return null
+
     val destinationDir = context.filesDir
     val destinationFile = File(destinationDir, fileName)
 
@@ -56,29 +53,20 @@ fun Uri.toFileOrNull(context: Context, fileName: String?): File? {
 }
 
 fun Uri.getFileName(context: Context): String? = try {
-    when (scheme) {
-        "content" ->
-            context.contentResolver.query(
-                this,
-                arrayOf(OpenableColumns.DISPLAY_NAME),
-                null,
-                null,
-                null
-            )?.use { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIndex == -1) return@use null
-                cursor.moveToFirst()
-                cursor.getString(nameIndex) ?: lastPathSegment
-            }
-
-        "https" -> {
-            val contentDisposition = null
-            val mimeType = null
-            URLUtil.guessFileName(path, contentDisposition, mimeType)
+    if (scheme == "content") {
+        context.contentResolver.query(
+            this,
+            arrayOf(OpenableColumns.DISPLAY_NAME),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex == -1) return@use null
+            cursor.moveToFirst()
+            cursor.getString(nameIndex) ?: lastPathSegment
         }
-
-        else -> toFile().name
-    }
+    } else toFile().name
 } catch (e: Exception) {
     null
 }
