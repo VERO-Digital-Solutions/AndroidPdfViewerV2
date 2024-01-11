@@ -253,7 +253,6 @@ object PdfUtil {
             val pageNum = 0
             val page = renderer.openPage(pageNum)
             pageHeight = page.height
-
             val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
             // Ensure white background
             bitmap.eraseColor(Color.WHITE)
@@ -269,7 +268,6 @@ object PdfUtil {
             val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
             val shapes = getShapesFor(pdfAnnotations, page.height)
             jsonShapes = mapPdfShapesToJsonString(shapes as List<Rectangle>)
-
             page.close()
         }
         return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)
