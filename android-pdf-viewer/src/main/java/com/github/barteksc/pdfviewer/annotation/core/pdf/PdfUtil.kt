@@ -155,60 +155,20 @@ object PdfUtil {
                         val urx: Float = rectArray.getAsNumber(2).floatValue()
                         val ury: Float = rectArray.getAsNumber(3).floatValue()
 
-                        if (subtype == PdfName.SQUARE) {
-                            // bottom left
-                            val xBottomLeftPoint = llx
-                            val yBottomLeftPoint = lly
-                            val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-
-                            // top right
-                            val xTopRightPoint = urx
-                            val yTopRightPoint = ury
-                            val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
-
-                            // from the extracted coordinates, calculate the rest
-                            val squareAnnotationPoints =
-                                generateRectangleCoordinates(bottomLeftPoint, topRightPoint)
-
-                            // Extract relations
-                            val documentations = mutableListOf<Documentation>()
-                            val relationsArray: PdfArray? =
-                                annotation.getAsArray(PdfName("relations"))
-                            if (relationsArray != null) {
-                                for (j in 0 until relationsArray.size()) {
-                                    val documentationDict: PdfDictionary =
-                                        relationsArray.getAsDict(j)
-                                    val schemaId: PdfNumber? =
-                                        documentationDict.getAsNumber(PdfName("schemaId"))
-                                    val documentId: PdfString? =
-                                        documentationDict.getAsString(PdfName("documentId"))
-
-                                    if (schemaId != null && documentId != null) {
-                                        logDebug(TAG, "Annotation $i - Relations $j:")
-                                        logDebug(TAG, "  schemaId: $schemaId")
-                                        logDebug(TAG, "  documentId: $documentId")
-
-                                        documentations.add(
-                                            Documentation(
-                                                schemaId.intValue().toLong(),
-                                                documentId.toString()
-                                            )
-                                        )
-                                    }
-
-                                }
-                            }
-                            val squareAnnotation = Annotation(
-                                AnnotationType.SQUARE.name,
-                                squareAnnotationPoints,
-                                relations = Relations(documentations)
+                        val extractedAnnotation: Annotation? = when (subtype) {
+                            PdfName.SQUARE -> getSquareAnnotation(
+                                annotation,
+                                llx,
+                                lly,
+                                urx,
+                                ury,
                             )
-                            annotationsList.add(squareAnnotation)
 
-                            logDebug(TAG, "Annotation is square")
-                            logDebug(TAG, "Annotation $i on page $pageNum - points:")
-                            logDebug(TAG, "squareAnnotationPoints:$squareAnnotationPoints")
+                            else -> null
+                        }
 
+                        if (extractedAnnotation != null) {
+                            annotationsList.add(extractedAnnotation)
                         }
                     }
                 } else {
@@ -220,8 +180,64 @@ object PdfUtil {
         return annotationsList
     }
 
+    fun getSquareAnnotation(
+        annotation: PdfDictionary,
+        llx: Float,
+        lly: Float,
+        urx: Float,
+        ury: Float
+    ): Annotation {
+        // bottom left
+        val xBottomLeftPoint = llx
+        val yBottomLeftPoint = lly
+        val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
+
+        // top right
+        val xTopRightPoint = urx
+        val yTopRightPoint = ury
+        val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
+
+        // from the extracted coordinates, calculate the rest
+        val squareAnnotationPoints =
+            generateRectangleCoordinates(bottomLeftPoint, topRightPoint)
+
+        // Extract relations
+        val documentations = mutableListOf<Documentation>()
+        val relationsArray: PdfArray? =
+            annotation.getAsArray(PdfName("relations"))
+        if (relationsArray != null) {
+            for (j in 0 until relationsArray.size()) {
+                val documentationDict: PdfDictionary =
+                    relationsArray.getAsDict(j)
+                val schemaId: PdfNumber? =
+                    documentationDict.getAsNumber(PdfName("schemaId"))
+                val documentId: PdfString? =
+                    documentationDict.getAsString(PdfName("documentId"))
+
+                if (schemaId != null && documentId != null) {
+                    logDebug(TAG, "  schemaId: $schemaId")
+                    logDebug(TAG, "  documentId: $documentId")
+
+                    documentations.add(
+                        Documentation(
+                            schemaId.intValue().toLong(),
+                            documentId.toString()
+                        )
+                    )
+                }
+
+            }
+        }
+
+        return Annotation(
+            AnnotationType.SQUARE.name,
+            squareAnnotationPoints,
+            relations = Relations(documentations)
+        )
+    }
+
     /** Map annotations to shapes,
-     *  using the page height when converting between PDF space and image space*/
+     *  using the page height when converting between PDF space and image space */
     private fun getShapesFor(
         pdfAnnotations: List<Annotation>,
         pageHeight: Int
