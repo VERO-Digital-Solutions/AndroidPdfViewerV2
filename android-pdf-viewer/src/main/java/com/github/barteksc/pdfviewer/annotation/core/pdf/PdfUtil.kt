@@ -204,24 +204,6 @@ object PdfUtil {
                         logDebug(TAG, "Annotation $i on page $pageNum - points:")
                         logDebug(TAG, "squareAnnotationPoints:$squareAnnotationPoints")
 
-                    } else if (subtype == PdfName.CIRCLE) {
-                        // bottom left
-                        val xBottomLeftPoint = llx
-                        val yBottomLeftPoint = lly
-                        val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-
-                        // top right
-                        val xTopRightPoint = urx
-                        val yTopRightPoint = ury
-                        val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
-
-                        val circleAnnotationPoints = listOf(bottomLeftPoint, topRightPoint)
-                        val circleAnnotation = Annotation("CIRCLE", circleAnnotationPoints)
-                        annotationsList.add(circleAnnotation)
-
-                        logDebug(TAG, "Annotation is circle")
-                        logDebug(TAG, "Annotation $i on page $pageNum - points:")
-                        logDebug(TAG, "circleAnnotationPoints:$circleAnnotationPoints")
                     } else {
                         logDebug(TAG, "Annotation is not recognised")
                     }
