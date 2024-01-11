@@ -156,7 +156,7 @@ object PdfUtil {
                         val ury: Float = rectArray.getAsNumber(3).floatValue()
 
                         val extractedAnnotation: Annotation? = when (subtype) {
-                            PdfName.SQUARE -> getSquareAnnotation(
+                            PdfName.SQUARE -> getExtractedSquareAnnotation(
                                 annotation,
                                 llx,
                                 lly,
@@ -180,7 +180,7 @@ object PdfUtil {
         return annotationsList
     }
 
-    fun getSquareAnnotation(
+    private fun getExtractedSquareAnnotation(
         annotation: PdfDictionary,
         llx: Float,
         lly: Float,
@@ -202,9 +202,19 @@ object PdfUtil {
             generateRectangleCoordinates(bottomLeftPoint, topRightPoint)
 
         // Extract relations
-        val documentations = mutableListOf<Documentation>()
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
+
+        return Annotation(
+            AnnotationType.SQUARE.name,
+            squareAnnotationPoints,
+            relations = getExtractedRelations(relationsArray)
+        )
+    }
+
+    private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
+        val documentations = mutableListOf<Documentation>()
+
         if (relationsArray != null) {
             for (j in 0 until relationsArray.size()) {
                 val documentationDict: PdfDictionary =
@@ -215,9 +225,6 @@ object PdfUtil {
                     documentationDict.getAsString(PdfName("documentId"))
 
                 if (schemaId != null && documentId != null) {
-                    logDebug(TAG, "  schemaId: $schemaId")
-                    logDebug(TAG, "  documentId: $documentId")
-
                     documentations.add(
                         Documentation(
                             schemaId.intValue().toLong(),
@@ -227,13 +234,10 @@ object PdfUtil {
                 }
 
             }
+        } else {
+            return null
         }
-
-        return Annotation(
-            AnnotationType.SQUARE.name,
-            squareAnnotationPoints,
-            relations = Relations(documentations)
-        )
+        return Relations(documentations)
     }
 
     /** Map annotations to shapes,
