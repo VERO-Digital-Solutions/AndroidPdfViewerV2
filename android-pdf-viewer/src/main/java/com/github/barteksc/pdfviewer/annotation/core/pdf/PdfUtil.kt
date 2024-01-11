@@ -18,6 +18,7 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.mapJsonStringToPdfSh
 import com.github.barteksc.pdfviewer.annotation.core.shapes.mapPdfShapesToJsonString
 import com.github.barteksc.pdfviewer.annotation.core.shapes.toAnnotation
 import com.github.barteksc.pdfviewer.util.logDebug
+import com.github.barteksc.pdfviewer.util.logError
 import com.lowagie.text.pdf.PdfArray
 import com.lowagie.text.pdf.PdfDictionary
 import com.lowagie.text.pdf.PdfName
@@ -38,58 +39,47 @@ object PdfUtil {
 
     /** Extract PDF extras from the annotations for the given PDF file path.
      * Check this when linking entities to annotation */
-    @Throws(IOException::class)
     @JvmStatic
     private fun getAnnotationsExtra(filePath: String) {
-        logDebug(TAG, "file path is: $filePath")
+        try {
+            if (filePath.isEmpty()) throw java.lang.Exception("Input file is empty")
+            val file = File(filePath)
+            if (!file.exists()) throw java.lang.Exception("Input file does not exists")
 
-        if (filePath.isEmpty()) throw java.lang.Exception("Input file is empty")
-        val file = File(filePath)
-        if (!file.exists()) throw java.lang.Exception("Input file does not exists")
+            val inputStream: InputStream = FileInputStream(file)
+            val reader = PdfReader(inputStream)
 
-        // input stream from file
-        val inputStream: InputStream = FileInputStream(file)
-
-        // we create a reader for a certain document
-        val reader = PdfReader(inputStream)
-
-        val n = reader.numberOfPages
-
-        var page: PdfDictionary
-        for (i in 1..n) {
-            page = reader.getPageN(i)
-            // When using getAsDict(), getAsArray() and others we may get null if there was a problem
-            val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-            if (annots == null) {
-                logDebug(TAG, "Annotations array for page $i is null")
-
-            } else {
-                logDebug(TAG, "Annotations array for page $i: $annots")
-
-                for (j in 0 until annots.size()) {
-                    val annotation: PdfDictionary = annots.getAsDict(j)
-
-                    // Extract extras
-                    val entityLinks: PdfArray? = annotation.getAsArray(PdfName("EntityLinks"))
-                    if (entityLinks != null) {
-                        for (k in 0 until entityLinks.size()) {
-                            val entityLink: PdfDictionary = entityLinks.getAsDict(k)
-                            val relKey: PdfString? = entityLink.getAsString(PdfName("relKey"))
-                            val relType: PdfString? = entityLink.getAsString(PdfName("relType"))
-
-                            logDebug(TAG, "Annotation $j on page $i - EntityLink $k:")
-                            logDebug(TAG, "  relKey: $relKey")
-                            logDebug(TAG, "  relType: $relType")
+            val n = reader.numberOfPages
+            var page: PdfDictionary
+            for (i in 1..n) {
+                page = reader.getPageN(i)
+                val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
+                if (annots == null) {
+                    logError(TAG, "Annotations array for page $i is null")
+                } else {
+                    for (j in 0 until annots.size()) {
+                        val annotation: PdfDictionary = annots.getAsDict(j)
+                        val entityLinks: PdfArray? = annotation.getAsArray(PdfName("EntityLinks"))
+                        if (entityLinks != null) {
+                            for (k in 0 until entityLinks.size()) {
+                                val entityLink: PdfDictionary = entityLinks.getAsDict(k)
+                                val relKey: PdfString? = entityLink.getAsString(PdfName("relKey"))
+                                val relType: PdfString? = entityLink.getAsString(PdfName("relType"))
+                            }
                         }
                     }
                 }
             }
+        } catch (e: Exception) {
+            e.message?.let { logError(TAG, it) }
+            e.printStackTrace()
         }
     }
 
     /** Uses the passed PDF file to create a PNG image from the first page,
      *  maps the PDF annotations to shapes that will be saved as json string */
     @JvmStatic
+    @Throws(IOException::class)
     fun getPdfToImageResultData(
         pdfFilePath: String,
         outputDirectory: String
@@ -101,7 +91,6 @@ object PdfUtil {
         return resultData
     }
 
-
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
     fun getResultPdf(pdfFile: File, pdfPageHeight: Int, jsonShapes: String) {
@@ -112,73 +101,68 @@ object PdfUtil {
     /** Extract the annotations for the given PDF file path and page number.
      * In OpenPdf, pages start from 1
      * Page number is always 1 for now */
-    @Throws(IOException::class)
     @JvmStatic
     fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
-        if (filePath.isEmpty()) throw Exception("Input file is empty")
-        val file = File(filePath)
-        if (!file.exists()) throw Exception("Input file does not exist")
+        try {
+            if (filePath.isEmpty()) throw Exception("Input file is empty")
+            val file = File(filePath)
+            if (!file.exists()) throw Exception("Input file does not exist")
 
-        // a list of the annotations
-        val annotationsList = mutableListOf<Annotation>()
+            val inputStream: InputStream = FileInputStream(file)
+            val reader = PdfReader(inputStream)
+            val annotationsList = mutableListOf<Annotation>()
 
-        // input stream from file
-        val inputStream: InputStream = FileInputStream(file)
+            // read annotations for the given page
+            val page: PdfDictionary = reader.getPageN(pageNum)
+            val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
+            if (annots == null) {
+                logError(TAG, "Annotations array for page $pageNum is null")
+            } else {
+                logDebug(TAG, "Annotations array for page $pageNum: $annots")
+                // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
+                val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
+                for (i in 0 until annots.size()) {
+                    val annotation: PdfDictionary = annots.getAsDict(i)
+                    // Extract extras
+                    // coordinates of 2 corners of the rectangle of the annotation
+                    val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
+                    // type of annotation
+                    val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
+                    if (subtype != null && subtype in annotationsWithRect) {
+                        if (rectArray != null && rectArray.size() == 4) {
+                            // bottom left corner's coordinates
+                            val llx: Float = rectArray.getAsNumber(0).floatValue()
+                            val lly: Float = rectArray.getAsNumber(1).floatValue()
+                            // top right corner's coordinates
+                            val urx: Float = rectArray.getAsNumber(2).floatValue()
+                            val ury: Float = rectArray.getAsNumber(3).floatValue()
 
-        // we create a reader for a certain document
-        val reader = PdfReader(inputStream)
+                            val extractedAnnotation: Annotation? = when (subtype) {
+                                PdfName.SQUARE -> getExtractedSquareAnnotation(
+                                    annotation,
+                                    llx,
+                                    lly,
+                                    urx,
+                                    ury,
+                                )
 
-        // read annotations for the given page
-        val page: PdfDictionary = reader.getPageN(pageNum)
-        val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-        if (annots == null) {
-            logDebug(TAG, "Annotations array for page $pageNum is null")
-        } else {
-            logDebug(TAG, "Annotations array for page $pageNum: $annots")
-
-            // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
-            val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
-            for (i in 0 until annots.size()) {
-                val annotation: PdfDictionary = annots.getAsDict(i)
-
-                // Extract extras
-                // coordinates of 2 corners of the rectangle of the annotation
-                val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
-                // type of annotation
-                val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
-
-                if (subtype != null && subtype in annotationsWithRect) {
-                    if (rectArray != null && rectArray.size() == 4) {
-                        // bottom left corner's coordinates
-                        val llx: Float = rectArray.getAsNumber(0).floatValue()
-                        val lly: Float = rectArray.getAsNumber(1).floatValue()
-                        // top right corner's coordinates
-                        val urx: Float = rectArray.getAsNumber(2).floatValue()
-                        val ury: Float = rectArray.getAsNumber(3).floatValue()
-
-                        val extractedAnnotation: Annotation? = when (subtype) {
-                            PdfName.SQUARE -> getExtractedSquareAnnotation(
-                                annotation,
-                                llx,
-                                lly,
-                                urx,
-                                ury,
-                            )
-
-                            else -> null
+                                else -> null
+                            }
+                            if (extractedAnnotation != null) {
+                                annotationsList.add(extractedAnnotation)
+                            }
                         }
-
-                        if (extractedAnnotation != null) {
-                            annotationsList.add(extractedAnnotation)
-                        }
+                    } else {
+                        logError(TAG, "Annotation is not recognised")
                     }
-                } else {
-                    logDebug(TAG, "Annotation is not recognised")
                 }
             }
+            return annotationsList
+        } catch (e: Exception) {
+            e.message?.let { logError(TAG, it) }
+            e.printStackTrace()
+            return emptyList()
         }
-
-        return annotationsList
     }
 
     private fun getExtractedSquareAnnotation(
@@ -188,12 +172,9 @@ object PdfUtil {
         urx: Float,
         ury: Float
     ): Annotation {
-        // bottom left
         val xBottomLeftPoint = llx
         val yBottomLeftPoint = lly
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-
-        // top right
         val xTopRightPoint = urx
         val yTopRightPoint = ury
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
@@ -202,7 +183,6 @@ object PdfUtil {
         val squareAnnotationPoints =
             generateRectangleCoordinates(bottomLeftPoint, topRightPoint)
 
-        // Extract relations
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
@@ -215,7 +195,6 @@ object PdfUtil {
 
     private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
         val documentations = mutableListOf<Documentation>()
-
         if (relationsArray != null) {
             for (j in 0 until relationsArray.size()) {
                 val documentationDict: PdfDictionary =
@@ -233,7 +212,6 @@ object PdfUtil {
                         )
                     )
                 }
-
             }
         } else {
             return null
@@ -344,7 +322,7 @@ object PdfUtil {
                     annotation.relations
                 )
 
-                else -> throw Exception("Annotation is not recognised")
+                else -> logError(TAG, "Annotation $annotation is not recognised")
             }
         }
     }
