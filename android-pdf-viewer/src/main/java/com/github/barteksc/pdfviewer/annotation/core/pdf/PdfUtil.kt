@@ -8,13 +8,11 @@ import android.os.ParcelFileDescriptor
 import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
-import com.github.barteksc.pdfviewer.annotation.core.annotations.toCircleShape
 import com.github.barteksc.pdfviewer.annotation.core.annotations.toRectangleShape
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
-import com.github.barteksc.pdfviewer.annotation.core.shapes.ShapeType
 import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
 import com.github.barteksc.pdfviewer.annotation.core.shapes.mapJsonStringToPdfShapes
 import com.github.barteksc.pdfviewer.annotation.core.shapes.mapPdfShapesToJsonString
@@ -196,7 +194,7 @@ object PdfUtil {
                             }
                         }
                         val squareAnnotation = Annotation(
-                           AnnotationType.SQUARE.name,
+                            AnnotationType.SQUARE.name,
                             squareAnnotationPoints,
                             relations = Relations(documentations)
                         )
@@ -244,7 +242,6 @@ object PdfUtil {
         val shapes = pdfAnnotations.map { annotation ->
             when (annotation.type) {
                 AnnotationType.SQUARE.name -> return@map annotation.toRectangleShape(pageHeight)
-                AnnotationType.CIRCLE.name -> return@map annotation.toCircleShape(pageHeight)
                 else -> throw Exception("Annotation is not recognised")
             }
         }
@@ -353,11 +350,6 @@ object PdfUtil {
                     annotation.points,
                     pdfFile,
                     annotation.relations
-                )
-
-                AnnotationType.CIRCLE.name -> AnnotationManager.addCircleAnnotation(
-                    annotation.points,
-                    pdfFile
                 )
 
                 else -> throw Exception("Annotation is not recognised")

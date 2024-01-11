@@ -23,7 +23,6 @@ open class Shape(
 fun Shape.toAnnotation(pageHeight: Int): Annotation {
     return when (this) {
         is Rectangle -> toRectangleAnnotation(pageHeight)
-        is Circle -> toCircleAnnotation(pageHeight)
         else -> throw Exception("Couldn't parse shape to annotation")
     }
 }
@@ -37,11 +36,6 @@ fun Shape.toRectangleAnnotation(pageHeight: Int): Annotation {
     )
 }
 
-fun Shape.toCircleAnnotation(pageHeight: Int): Annotation {
-    val points = points.map { it.convertCoordinatesFrom(pageHeight) }
-    return Annotation(type = AnnotationType.CIRCLE.name, points = points)
-}
-
 class ShapeDeserializer : JsonDeserializer<Shape> {
 
     override fun deserialize(
@@ -53,7 +47,6 @@ class ShapeDeserializer : JsonDeserializer<Shape> {
         val shapeType = jsonObject.get("type").asString
 
         return when (shapeType) {
-            ShapeType.CIRCLE.name-> context.deserialize(json, Circle::class.java)
             ShapeType.RECTANGLE.name -> context.deserialize(json, Rectangle::class.java)
             else -> throw JsonParseException("Unknown shape type: $shapeType")
         }

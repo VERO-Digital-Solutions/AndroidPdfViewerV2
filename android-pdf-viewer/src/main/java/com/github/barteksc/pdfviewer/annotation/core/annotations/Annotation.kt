@@ -1,7 +1,6 @@
 package com.github.barteksc.pdfviewer.annotation.core.annotations
 
 import android.graphics.PointF
-import com.github.barteksc.pdfviewer.annotation.core.shapes.Circle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFrom
@@ -24,14 +23,4 @@ fun Annotation.toRectangleShape(pageHeight: Int): Rectangle {
     val rectangleShapeEdges = mappedPoints.generateRectangleEdges()
 
     return Rectangle(points = mappedPoints, edges = rectangleShapeEdges, relations = relations)
-}
-
-fun Annotation.toCircleShape(pageHeight: Int): Circle {
-    // circle's start and end points mapped to image space
-    val mappedPoints = listOf(
-        points[0].convertCoordinatesFrom(pageHeight),
-        points[1].convertCoordinatesFrom(pageHeight),
-    )
-
-    return Circle(points = mappedPoints)
 }
