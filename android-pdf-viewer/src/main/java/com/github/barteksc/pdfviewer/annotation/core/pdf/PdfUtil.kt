@@ -110,6 +110,7 @@ object PdfUtil {
     }
 
     /** Extract the annotations for the given PDF file path and page number.
+     * In OpenPdf, pages start from 1
      * Page number is always 1 for now */
     @Throws(IOException::class)
     @JvmStatic
@@ -264,52 +265,35 @@ object PdfUtil {
     private fun convertPdfAnnotationsToPngShapes(
         pdfPath: String, outputDirectory: String
     ): PdfToImageResultData {
-        // Saving result data here
-        var shapes: List<Shape>
         lateinit var pngFile: File
         var pageHeight by Delegates.notNull<Int>()
         lateinit var jsonShapes: String
 
-        // Create a new renderer
         val renderer = PdfRenderer(getSeekableFileDescriptor(pdfPath))
-
         renderer.use { renderer ->
             // Assuming the pdf will have only 1 page (for now)
             val pageNum = 0
             val page = renderer.openPage(pageNum)
+            pageHeight = page.height
 
-            // Create a bitmap
             val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
             // Ensure white background
             bitmap.eraseColor(Color.WHITE)
-
-            // Render the page on the bitmap
             page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
             val pdfName = extractFileNameFromPath(pdfPath)
-
-            // Save the bitmap as a PNG file
             pngFile = saveBitmapAsPng(
                 bitmap,
                 outputDirectory,
                 "PdfToImage-$pdfName-page-${pageNum + 1}.png"
             )
 
-            // Save page height
-            pageHeight = page.height
-
-            // In OpenPdf lib, pages start from 1
             val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
-
-            shapes = getShapesFor(pdfAnnotations, page.height)
-
-            // Map to JSON string so we can pass them to MeasureLib
+            val shapes = getShapesFor(pdfAnnotations, page.height)
             jsonShapes = mapPdfShapesToJsonString(shapes as List<Rectangle>)
 
-            // Close the page
             page.close()
         }
-
         return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)
     }
 
