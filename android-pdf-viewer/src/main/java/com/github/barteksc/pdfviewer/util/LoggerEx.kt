@@ -4,9 +4,8 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 
-
 internal fun Context.toast(text:String) {
-    Toast.makeText(this, text,Toast.LENGTH_LONG ).show()
+    Toast.makeText(this, text, Toast.LENGTH_LONG ).show()
 }
 
 internal fun logDebug(tag:String = "" , text:String){

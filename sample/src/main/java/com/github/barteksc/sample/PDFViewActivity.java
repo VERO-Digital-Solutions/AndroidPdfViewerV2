@@ -16,7 +16,7 @@
 package com.github.barteksc.sample;
 
 import static com.github.barteksc.pdfviewer.util.PublicValue.KEY_REQUEST_FILE_PICKER;
-import static com.github.barteksc.sample.DebugUtilKt.toast;
+import static com.github.barteksc.sample.LoggerExKt.toast;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -25,7 +25,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,7 +37,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnLongPressListener;
@@ -142,10 +140,10 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
             toast(this, "currUri is null");
             return;
         }
-        String uriName = DebugUtilKt.getFileName(currUri, context);
+        String uriName = UriExKt.getFileName(currUri, context);
         if (uriName != null) {
             // From the uri, create a file in internal storage
-            File pdfFile = DebugUtilKt.toFileOrNull(currUri, context, uriName);
+            File pdfFile = UriExKt.toFileOrNull(currUri, context, uriName);
 
             // Get the uri for the created file
             Uri copiedPdfFileUri = Uri.fromFile(pdfFile);
@@ -171,8 +169,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
             } else {
                 toast(this, "Couldn't copy file to internal storage");
             }
-        }
-        else{
+        } else {
             toast(this, "Couldn't extract uri's name");
         }
     }
