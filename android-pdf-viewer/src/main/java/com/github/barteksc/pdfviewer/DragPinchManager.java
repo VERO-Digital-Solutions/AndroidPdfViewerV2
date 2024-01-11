@@ -45,9 +45,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     private boolean scrolling = false;
     private boolean scaling = false;
-
-    /** Enables scrolling and zooming */
-    private boolean enabled = true;
+    private boolean enabledScrollingAndZooming = true;
 
     DragPinchManager(PDFView pdfView, AnimationManager animationManager) {
         this.pdfView = pdfView;
@@ -57,12 +55,12 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         pdfView.setOnTouchListener(this);
     }
 
-    void enable() {
-        enabled = true;
+    void enableScrollingAndZooming() {
+        enabledScrollingAndZooming = true;
     }
 
-    void disable() {
-        enabled = false;
+    void disableScrollingAndZooming() {
+        enabledScrollingAndZooming = false;
     }
 
     void disableLongpress() {
@@ -286,7 +284,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (!enabled) {
+        if (!enabledScrollingAndZooming) {
             return false;
         }
 

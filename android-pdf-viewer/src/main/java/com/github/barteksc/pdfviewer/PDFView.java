@@ -469,7 +469,7 @@ public class PDFView extends RelativeLayout {
         waitingDocumentConfigurator = null;
 
         animationManager.stopAll();
-        dragPinchManager.disable();
+        dragPinchManager.disableScrollingAndZooming();
 
         // Stop tasks
         if (renderingHandler != null) {
@@ -823,7 +823,7 @@ public class PDFView extends RelativeLayout {
             isScrollHandleInit = true;
         }
 
-        dragPinchManager.enable();
+        dragPinchManager.enableScrollingAndZooming();
 
         callbacks.callOnLoadComplete(pdfFile.getPagesCount());
 
