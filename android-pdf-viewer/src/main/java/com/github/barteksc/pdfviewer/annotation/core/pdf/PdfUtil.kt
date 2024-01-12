@@ -200,7 +200,7 @@ object PdfUtil {
      *  map PDF annotations to image shapes, save the PNG image to the given output directory
      */
     @JvmStatic
-    @Throws(IOException::class)
+    @Throws(Exception::class)
     private fun convertPdfAnnotationsToPngShapes(
         pdfPath: String, outputDirectory: String
     ): PdfToImageResultData {
@@ -208,7 +208,9 @@ object PdfUtil {
         var pageHeight by Delegates.notNull<Int>()
         lateinit var jsonShapes: String
 
-        val renderer = PdfRenderer(getSeekableFileDescriptor(pdfPath))
+        val fd = getSeekableFileDescriptor(pdfPath)
+            ?: throw Exception("Couldn't get seek-able file descriptor")
+        val renderer = PdfRenderer(fd)
         renderer.use { renderer ->
             // Assuming the pdf will have only 1 page (for now)
             val pageNum = 0
@@ -234,14 +236,14 @@ object PdfUtil {
         return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)
     }
 
-    private fun getSeekableFileDescriptor(pdfPath: String): ParcelFileDescriptor {
+    private fun getSeekableFileDescriptor(pdfPath: String): ParcelFileDescriptor? {
         var fd: ParcelFileDescriptor? = null
         try {
             fd = ParcelFileDescriptor.open(File(pdfPath), ParcelFileDescriptor.MODE_READ_ONLY)
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         }
-        return fd!!
+        return fd
     }
 
     private fun saveBitmapAsPng(bitmap: Bitmap, directory: String, fileName: String): File {

@@ -16,7 +16,7 @@
 package com.github.barteksc.sample;
 
 import static com.github.barteksc.pdfviewer.util.PublicValue.KEY_REQUEST_FILE_PICKER;
-import static com.github.barteksc.sample.LoggerExKt.toast;
+import static com.github.barteksc.sample.LoggerKt.toast;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
