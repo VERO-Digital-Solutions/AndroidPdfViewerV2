@@ -37,45 +37,6 @@ object PdfUtil {
 
     private val TAG: String = PdfUtil.javaClass.simpleName
 
-    /** Extract PDF extras from the annotations for the given PDF file path.
-     * Check this when linking entities to annotation */
-    @JvmStatic
-    private fun getAnnotationsExtra(filePath: String) {
-        try {
-            if (filePath.isEmpty()) throw java.lang.Exception("Input file is empty")
-            val file = File(filePath)
-            if (!file.exists()) throw java.lang.Exception("Input file does not exists")
-
-            val inputStream: InputStream = FileInputStream(file)
-            val reader = PdfReader(inputStream)
-
-            val n = reader.numberOfPages
-            var page: PdfDictionary
-            for (i in 1..n) {
-                page = reader.getPageN(i)
-                val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-                if (annots == null) {
-                    logError(TAG, "Annotations array for page $i is null")
-                } else {
-                    for (j in 0 until annots.size()) {
-                        val annotation: PdfDictionary = annots.getAsDict(j)
-                        val entityLinks: PdfArray? = annotation.getAsArray(PdfName("EntityLinks"))
-                        if (entityLinks != null) {
-                            for (k in 0 until entityLinks.size()) {
-                                val entityLink: PdfDictionary = entityLinks.getAsDict(k)
-                                val relKey: PdfString? = entityLink.getAsString(PdfName("relKey"))
-                                val relType: PdfString? = entityLink.getAsString(PdfName("relType"))
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.message?.let { logError(TAG, it) }
-            e.printStackTrace()
-        }
-    }
-
     /** Uses the passed PDF file to create a PNG image from the first page,
      *  maps the PDF annotations to shapes that will be saved as json string */
     @JvmStatic
