@@ -54,7 +54,7 @@ object PdfUtil {
 
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
-    fun getResultPdf(pdfFile: File, pdfPageHeight: Int, jsonShapes: String) {
+    fun drawAnnotations(pdfFile: File, pdfPageHeight: Int, jsonShapes: String) {
         val shapes = mapJsonStringToPdfShapes(jsonShapes)
         drawPngShapesToPdf(pdfFile, pdfPageHeight, shapes)
     }
