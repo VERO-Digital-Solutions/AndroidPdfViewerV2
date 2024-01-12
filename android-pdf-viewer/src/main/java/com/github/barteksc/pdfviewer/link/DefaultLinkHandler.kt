@@ -1,10 +1,5 @@
 package com.github.barteksc.pdfviewer.link
 
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import com.github.barteksc.pdfviewer.PDFView
-
 /**
  * Copyright 2017 Bartosz Schiller
  *
@@ -23,32 +18,18 @@ import com.github.barteksc.pdfviewer.PDFView
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import android.util.Log
+import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 
 class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
     override fun handleLinkEvent(event: LinkTapEvent) {
-        val uri: String = event.getLink().uri
-        val page: Int = event.getLink().destPageIdx
-        if (uri.isNotEmpty()) {
-            handleUri(uri)
-        } else {
-            handlePage(page)
-        }
-    }
+        Log.i(TAG, "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY)
+        Log.i(TAG, "--------------------------------------------------")
 
-    private fun handleUri(uri: String) {
-        val parsedUri = Uri.parse(uri)
-        val intent = Intent(Intent.ACTION_VIEW, parsedUri)
-        val context = pdfView.context
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        } else {
-            Log.w(TAG, "No activity found for URI: $uri")
-        }
-    }
-
-    private fun handlePage(page: Int) {
-        pdfView.jumpTo(page)
+        val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.originalX, event.originalY)
+        Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
+        Log.i(TAG, "--------------------------------------------------")
     }
 
     companion object {

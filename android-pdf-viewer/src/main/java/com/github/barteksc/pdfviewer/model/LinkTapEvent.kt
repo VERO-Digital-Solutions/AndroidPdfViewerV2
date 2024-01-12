@@ -21,23 +21,10 @@ import org.benjinus.pdfium.Link
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//import org.benjinus.pdfium.Link
 
-class LinkTapEvent(
+data class LinkTapEvent(
     val originalX: Float,
     val originalY: Float,
     val documentX: Float,
     val documentY: Float,
-    val mappedLinkRect: RectF,
-    link: Link
-) {
-    private val link: Link
-
-    init {
-        this.link = link
-    }
-
-    fun getLink(): Link {
-        return link
-    }
-}
+)

@@ -15,8 +15,10 @@
  */
 package com.github.barteksc.pdfviewer;
 
+import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MAXIMUM_ZOOM;
+import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MINIMUM_ZOOM;
+
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -26,11 +28,6 @@ import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 
-import org.benjinus.pdfium.Link;
-import org.benjinus.pdfium.util.SizeF;
-
-import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MAXIMUM_ZOOM;
-import static com.github.barteksc.pdfviewer.util.Constants.Pinch.MINIMUM_ZOOM;
 /**
  * This Manager takes care of moving the PDFView,
  * set its zoom track user actions.
@@ -70,6 +67,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         boolean onTapHandled = pdfView.callbacks.callOnTap(e);
+        checkTappedLink(e.getX(), e.getY());
         if (!onTapHandled) {
             ScrollHandle ps = pdfView.getScrollHandle();
             if (ps != null && !pdfView.documentFitsView()) {
@@ -81,6 +79,14 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
             }
         }
         pdfView.performClick();
+        return true;
+    }
+
+    private boolean checkTappedLink(float x, float y) {
+        float mappedX = -pdfView.getCurrentXOffset() + x;
+        float mappedY = -pdfView.getCurrentYOffset() + y;
+
+        pdfView.callbacks.callLinkHandler(new LinkTapEvent(x, y, mappedX, mappedY));
         return true;
     }
 
