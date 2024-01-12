@@ -32,16 +32,16 @@ object AnnotationManager {
         file: File,
         relations: Relations? = null
     ): Boolean {
-        if (!file.exists()) throw FileNotFoundException()
-        val page = 1
-
-        val referenceHash = StringBuilder()
-            .append(PublicValue.KEY_REFERENCE_HASH)
-            .append(UUID.randomUUID().toString())
-            .toString()
-
         var isAdded = false
         try {
+            if (!file.exists()) throw FileNotFoundException()
+            val page = 1
+
+            val referenceHash = StringBuilder()
+                .append(PublicValue.KEY_REFERENCE_HASH)
+                .append(UUID.randomUUID().toString())
+                .toString()
+
             val inputStream: InputStream = FileInputStream(file)
             val reader = PdfReader(inputStream)
             val stamp = PdfStamper(reader, FileOutputStream(file))
