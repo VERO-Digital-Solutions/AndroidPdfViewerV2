@@ -860,7 +860,7 @@ public class PDFView extends RelativeLayout {
             callbacks.callOnRender(pdfFile.getPagesCount());
         }
 
-        if (part.isThumbnail()) {
+        if (part.isThumbnail() && !cacheManager.getPageParts().contains(part)) {
             cacheManager.cacheThumbnail(part);
         } else {
             cacheManager.cachePart(part);
@@ -1237,7 +1237,7 @@ public class PDFView extends RelativeLayout {
     public void setZoomStep(float zoomStep) {
         this.zoomStep = zoomStep;
     }
-    
+
     public void useBestQuality(boolean bestQuality) {
         this.bestQuality = bestQuality;
     }
@@ -1566,7 +1566,7 @@ public class PDFView extends RelativeLayout {
         }
 
         public Configurator enableAnnotationHandling(boolean annotationHandling) {
-            this.annotationHandling= annotationHandling;
+            this.annotationHandling = annotationHandling;
             return this;
         }
 

@@ -82,14 +82,13 @@ class CacheManager {
     public void cacheThumbnail(PagePart part) {
         synchronized (thumbnails) {
             // If cache too big, remove and recycle
-            while (thumbnails.size() >= THUMBNAILS_CACHE_SIZE) {
+            if (thumbnails.size() >= THUMBNAILS_CACHE_SIZE) {
                 thumbnails.remove(0).getRenderedBitmap().recycle();
             }
 
             // Then add thumbnail
-            addWithoutDuplicates(thumbnails, part);
+            thumbnails.add(part);
         }
-
     }
 
     public boolean upPartIfContained(int page, RectF pageRelativeBounds, int toOrder) {
