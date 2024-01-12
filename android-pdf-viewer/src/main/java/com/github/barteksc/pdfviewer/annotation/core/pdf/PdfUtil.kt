@@ -190,7 +190,10 @@ object PdfUtil {
         val shapes = pdfAnnotations.map { annotation ->
             when (annotation.type) {
                 AnnotationType.SQUARE.name -> return@map annotation.toRectangleShape(pageHeight)
-                else -> throw Exception("Annotation is not recognised")
+                else -> {
+                    logError(TAG, "Annotation $annotation is not recognised")
+                    return emptyList()
+                }
             }
         }
         return shapes
