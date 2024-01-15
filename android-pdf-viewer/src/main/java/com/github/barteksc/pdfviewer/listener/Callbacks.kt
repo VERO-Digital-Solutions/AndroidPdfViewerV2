@@ -28,7 +28,7 @@ class Callbacks {
     /**
      * Call back object to call when the PDF is loaded
      */
-    private var onLoadCompleteListener: OnLoadCompleteListener? = null
+    var onLoadCompleteListener: OnLoadCompleteListener? = null
 
     /**
      * Call back object to call when document loading error occurs
@@ -38,57 +38,49 @@ class Callbacks {
     /**
      * Call back object to call when the page load error occurs
      */
-    private var onPageErrorListener: OnPageErrorListener? = null
+    var onPageErrorListener: OnPageErrorListener? = null
 
     /**
      * Call back object to call when the document is initially rendered
      */
-    private var onRenderListener: OnRenderListener? = null
+    var onRenderListener: OnRenderListener? = null
 
     /**
      * Call back object to call when the page has changed
      */
-    private var onPageChangeListener: OnPageChangeListener? = null
+    var onPageChangeListener: OnPageChangeListener? = null
 
     /**
      * Call back object to call when the page is scrolled
      */
-    private var onPageScrollListener: OnPageScrollListener? = null
+    var onPageScrollListener: OnPageScrollListener? = null
 
     /**
      * Call back object to call when the above layer is to drawn
      */
-    private var onDrawListener: OnDrawListener? = null
+    var onDrawListener: OnDrawListener? = null
 
-    private var onDrawAllListener: OnDrawListener? = null
+    var onDrawAllListener: OnDrawListener? = null
 
     /**
      * Call back object to call when the user does a tap gesture
      */
-    private var onTapListener: OnTapListener? = null
+    var onTapListener: OnTapListener? = null
 
     /**
      * Call back object to call when the user does a long tap gesture
      */
-    private var onLongPressListener: OnLongPressListener? = null
+    var onLongPressListener: OnLongPressListener? = null
 
     /**
      * Call back object to call when clicking link
      */
-    private var linkHandler: LinkHandler? = null
-
-    fun setOnLoadComplete(onLoadCompleteListener: OnLoadCompleteListener?) {
-        this.onLoadCompleteListener = onLoadCompleteListener
-    }
+    var linkHandler: LinkHandler? = null
 
     fun callOnLoadComplete(pagesCount: Int) {
         if (onLoadCompleteListener != null) {
             onLoadCompleteListener!!.loadComplete(pagesCount)
         }
-    }
-
-    fun setOnPageError(onPageErrorListener: OnPageErrorListener?) {
-        this.onPageErrorListener = onPageErrorListener
     }
 
     fun callOnPageError(page: Int, error: Throwable?): Boolean {
@@ -99,18 +91,10 @@ class Callbacks {
         return false
     }
 
-    fun setOnRender(onRenderListener: OnRenderListener?) {
-        this.onRenderListener = onRenderListener
-    }
-
     fun callOnRender(pagesCount: Int) {
         if (onRenderListener != null) {
             onRenderListener!!.onInitiallyRendered(pagesCount, 1F, 1F)
         }
-    }
-
-    fun setOnPageChange(onPageChangeListener: OnPageChangeListener?) {
-        this.onPageChangeListener = onPageChangeListener
     }
 
     fun callOnPageChange(page: Int, pagesCount: Int) {
@@ -119,50 +103,18 @@ class Callbacks {
         }
     }
 
-    fun setOnPageScroll(onPageScrollListener: OnPageScrollListener?) {
-        this.onPageScrollListener = onPageScrollListener
-    }
-
     fun callOnPageScroll(currentPage: Int, offset: Float) {
         if (onPageScrollListener != null) {
             onPageScrollListener!!.onPageScrolled(currentPage, offset)
         }
     }
 
-    fun setOnDraw(onDrawListener: OnDrawListener?) {
-        this.onDrawListener = onDrawListener
-    }
-
-    fun getOnDraw(): OnDrawListener? {
-        return onDrawListener
-    }
-
-    fun setOnDrawAll(onDrawAllListener: OnDrawListener?) {
-        this.onDrawAllListener = onDrawAllListener
-    }
-
-    fun getOnDrawAll(): OnDrawListener? {
-        return onDrawAllListener
-    }
-
-    fun setOnTap(onTapListener: OnTapListener?) {
-        this.onTapListener = onTapListener
-    }
-
     fun callOnTap(event: MotionEvent?): Boolean {
         return onTapListener != null && onTapListener!!.onTap(event)
     }
 
-    fun setOnLongPress(onLongPressListener: OnLongPressListener?) {
-        this.onLongPressListener = onLongPressListener
-    }
-
     fun callOnLongPress(event: MotionEvent?) {
         onLongPressListener?.onLongPress(event)
-    }
-
-    fun setLinkHandler(linkHandler: LinkHandler?) {
-        this.linkHandler = linkHandler
     }
 
     fun callLinkHandler(event: LinkTapEvent?) {

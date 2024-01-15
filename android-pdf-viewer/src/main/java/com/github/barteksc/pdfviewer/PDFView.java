@@ -683,18 +683,18 @@ public class PDFView extends RelativeLayout {
         // Draws parts
         for (PagePart part : cacheManager.getPageParts()) {
             drawPart(canvas, part);
-            if (callbacks.getOnDrawAll() != null
+            if (callbacks.getOnDrawAllListener() != null
                     && !onDrawPagesNums.contains(part.getPage())) {
                 onDrawPagesNums.add(part.getPage());
             }
         }
 
         for (Integer page : onDrawPagesNums) {
-            drawWithListener(canvas, page, callbacks.getOnDrawAll());
+            drawWithListener(canvas, page, callbacks.getOnDrawAllListener());
         }
         onDrawPagesNums.clear();
 
-        drawWithListener(canvas, currentPage, callbacks.getOnDraw());
+        drawWithListener(canvas, currentPage, callbacks.getOnDrawListener());
 
         // Restores the canvas position
         canvas.translate(-currentXOffset, -currentYOffset);
@@ -1699,16 +1699,16 @@ public class PDFView extends RelativeLayout {
                 return;
             }
             PDFView.this.recycle();
-            PDFView.this.callbacks.setOnLoadComplete(onLoadCompleteListener);
+            PDFView.this.callbacks.setOnLoadCompleteListener(onLoadCompleteListener);
             PDFView.this.callbacks.setOnErrorListener(onErrorListener);
-            PDFView.this.callbacks.setOnDraw(onDrawListener);
-            PDFView.this.callbacks.setOnDrawAll(onDrawAllListener);
-            PDFView.this.callbacks.setOnPageChange(onPageChangeListener);
-            PDFView.this.callbacks.setOnPageScroll(onPageScrollListener);
-            PDFView.this.callbacks.setOnRender(onRenderListener);
-            PDFView.this.callbacks.setOnTap(onTapListener);
-            PDFView.this.callbacks.setOnLongPress(onLongPressListener);
-            PDFView.this.callbacks.setOnPageError(onPageErrorListener);
+            PDFView.this.callbacks.setOnDrawListener(onDrawListener);
+            PDFView.this.callbacks.setOnDrawAllListener(onDrawAllListener);
+            PDFView.this.callbacks.setOnPageChangeListener(onPageChangeListener);
+            PDFView.this.callbacks.setOnPageScrollListener(onPageScrollListener);
+            PDFView.this.callbacks.setOnRenderListener(onRenderListener);
+            PDFView.this.callbacks.setOnTapListener(onTapListener);
+            PDFView.this.callbacks.setOnLongPressListener(onLongPressListener);
+            PDFView.this.callbacks.setOnPageErrorListener(onPageErrorListener);
             PDFView.this.callbacks.setLinkHandler(linkHandler);
             PDFView.this.setSwipeEnabled(enableSwipe);
             PDFView.this.setNightMode(nightMode);
@@ -1743,16 +1743,16 @@ public class PDFView extends RelativeLayout {
                 return;
             }
             PDFView.this.recycle();
-            PDFView.this.callbacks.setOnLoadComplete(onLoadCompleteListener);
+            PDFView.this.callbacks.setOnLoadCompleteListener(onLoadCompleteListener);
             PDFView.this.callbacks.setOnErrorListener(onErrorListener);
-            PDFView.this.callbacks.setOnDraw(onDrawListener);
-            PDFView.this.callbacks.setOnDrawAll(onDrawAllListener);
-            PDFView.this.callbacks.setOnPageChange(onPageChangeListener);
-            PDFView.this.callbacks.setOnPageScroll(onPageScrollListener);
-            PDFView.this.callbacks.setOnRender(onRenderListener);
-            PDFView.this.callbacks.setOnTap(onTapListener);
-            PDFView.this.callbacks.setOnLongPress(onLongPressListener);
-            PDFView.this.callbacks.setOnPageError(onPageErrorListener);
+            PDFView.this.callbacks.setOnDrawListener(onDrawListener);
+            PDFView.this.callbacks.setOnDrawAllListener(onDrawAllListener);
+            PDFView.this.callbacks.setOnPageChangeListener(onPageChangeListener);
+            PDFView.this.callbacks.setOnPageScrollListener(onPageScrollListener);
+            PDFView.this.callbacks.setOnRenderListener(onRenderListener);
+            PDFView.this.callbacks.setOnTapListener(onTapListener);
+            PDFView.this.callbacks.setOnLongPressListener(onLongPressListener);
+            PDFView.this.callbacks.setOnPageErrorListener(onPageErrorListener);
             PDFView.this.callbacks.setLinkHandler(linkHandler);
             PDFView.this.setScrollHandle(scrollHandle);
 
