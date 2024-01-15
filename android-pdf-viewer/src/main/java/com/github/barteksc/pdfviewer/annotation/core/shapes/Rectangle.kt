@@ -47,6 +47,14 @@ fun getMockedRectangle(): List<Rectangle> {
     return listOf(rectangle)
 }
 
+fun List<PointF>.generateRectangleEdges(): List<Edge> {
+    val edgeTopHorizontal = Edge(this[0], this[1])
+    val edgeRightVertical = Edge(this[1], this[2])
+    val edgeBottomHorizontal = Edge(this[2], this[3])
+    val edgeLeftVertical = Edge(this[3], this[0])
+    return listOf(edgeTopHorizontal, edgeRightVertical, edgeBottomHorizontal, edgeLeftVertical)
+}
+
 data class Edge(val start: PointF, val end: PointF)
 
 class RectangleTypeAdapter : JsonSerializer<Rectangle>, JsonDeserializer<Rectangle> {
