@@ -1,8 +1,5 @@
 package com.github.barteksc.pdfviewer.model
 
-import android.graphics.RectF
-import org.benjinus.pdfium.Link
-
 /**
  * Copyright 2016 Bartosz Schiller
  *
