@@ -833,7 +833,7 @@ public class PDFView extends RelativeLayout {
     void loadError(Throwable t) {
         state = State.ERROR;
         // store reference, because callbacks will be cleared in recycle() method
-        OnErrorListener onErrorListener = callbacks.getOnError();
+        OnErrorListener onErrorListener = callbacks.getOnErrorListener();
         recycle();
         invalidate();
         if (onErrorListener != null) {
@@ -1700,7 +1700,7 @@ public class PDFView extends RelativeLayout {
             }
             PDFView.this.recycle();
             PDFView.this.callbacks.setOnLoadComplete(onLoadCompleteListener);
-            PDFView.this.callbacks.setOnError(onErrorListener);
+            PDFView.this.callbacks.setOnErrorListener(onErrorListener);
             PDFView.this.callbacks.setOnDraw(onDrawListener);
             PDFView.this.callbacks.setOnDrawAll(onDrawAllListener);
             PDFView.this.callbacks.setOnPageChange(onPageChangeListener);
@@ -1744,7 +1744,7 @@ public class PDFView extends RelativeLayout {
             }
             PDFView.this.recycle();
             PDFView.this.callbacks.setOnLoadComplete(onLoadCompleteListener);
-            PDFView.this.callbacks.setOnError(onErrorListener);
+            PDFView.this.callbacks.setOnErrorListener(onErrorListener);
             PDFView.this.callbacks.setOnDraw(onDrawListener);
             PDFView.this.callbacks.setOnDrawAll(onDrawAllListener);
             PDFView.this.callbacks.setOnPageChange(onPageChangeListener);

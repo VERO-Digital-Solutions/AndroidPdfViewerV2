@@ -33,7 +33,7 @@ class Callbacks {
     /**
      * Call back object to call when document loading error occurs
      */
-    private var onErrorListener: OnErrorListener? = null
+    var onErrorListener: OnErrorListener? = null
 
     /**
      * Call back object to call when the page load error occurs
@@ -85,14 +85,6 @@ class Callbacks {
         if (onLoadCompleteListener != null) {
             onLoadCompleteListener!!.loadComplete(pagesCount)
         }
-    }
-
-    fun setOnError(onErrorListener: OnErrorListener?) {
-        this.onErrorListener = onErrorListener
-    }
-
-    fun getOnError(): OnErrorListener? {
-        return onErrorListener
     }
 
     fun setOnPageError(onPageErrorListener: OnPageErrorListener?) {
