@@ -40,16 +40,23 @@ object PdfUtil {
     /** Uses the passed PDF file to create a PNG image from the first page,
      *  maps the PDF annotations to shapes that will be saved as json string */
     @JvmStatic
-    @Throws(IOException::class)
     fun getPdfToImageResultData(
         pdfFilePath: String,
         outputDirectory: String
-    ): PdfToImageResultData {
+    ): PdfToImageResultData? {
         // (PDF, annotations) -> (PNG, shapes)
         val resultData = convertPdfAnnotationsToPngShapes(pdfFilePath, outputDirectory)
-        // Remove annotations from the PDF so we can draw shapes from MeasureLib on the same PDF
-        AnnotationManager.removeAnnotationsFromPdf(pdfFilePath)
-        return resultData
+        return if (resultData == null) {
+            logError(
+                TAG,
+                "Couldn't convert pdf annotations to shapes. Existing annotations won't be removed."
+            )
+            null
+        } else {
+            // Remove annotations from the PDF so we can draw shapes from MeasureLib on the same PDF
+            AnnotationManager.removeAnnotationsFromPdf(pdfFilePath)
+            resultData
+        }
     }
 
     /** Maps shapes to annotations and draws them to the given PDF */
@@ -203,40 +210,43 @@ object PdfUtil {
      *  map PDF annotations to image shapes, save the PNG image to the given output directory
      */
     @JvmStatic
-    @Throws(Exception::class)
     private fun convertPdfAnnotationsToPngShapes(
         pdfPath: String, outputDirectory: String
-    ): PdfToImageResultData {
+    ): PdfToImageResultData? {
         lateinit var pngFile: File
         var pageHeight by Delegates.notNull<Int>()
         lateinit var jsonShapes: String
 
         val fd = getSeekableFileDescriptor(pdfPath)
-            ?: throw Exception("Couldn't get seek-able file descriptor")
-        val renderer = PdfRenderer(fd)
-        renderer.use { renderer ->
-            // Assuming the pdf will have only 1 page (for now)
-            val pageNum = 0
-            val page = renderer.openPage(pageNum)
-            pageHeight = page.height
-            val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
-            // Ensure white background
-            bitmap.eraseColor(Color.WHITE)
-            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        if (fd == null) {
+            logError(TAG, "Couldn't get seek-able file descriptor for $pdfPath")
+            return null
+        } else {
+            val renderer = PdfRenderer(fd)
+            renderer.use { renderer ->
+                // Assuming the pdf will have only 1 page (for now)
+                val pageNum = 0
+                val page = renderer.openPage(pageNum)
+                pageHeight = page.height
+                val bitmap = Bitmap.createBitmap(page.width, page.height, Bitmap.Config.ARGB_8888)
+                // Ensure white background
+                bitmap.eraseColor(Color.WHITE)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
-            val pdfName = extractFileNameFromPath(pdfPath)
-            pngFile = saveBitmapAsPng(
-                bitmap,
-                outputDirectory,
-                "PdfToImage-$pdfName-page-${pageNum + 1}.png"
-            )
+                val pdfName = extractFileNameFromPath(pdfPath)
+                pngFile = saveBitmapAsPng(
+                    bitmap,
+                    outputDirectory,
+                    "PdfToImage-$pdfName-page-${pageNum + 1}.png"
+                )
 
-            val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
-            val shapes = getShapesFor(pdfAnnotations, page.height)
-            jsonShapes = mapPdfShapesToJsonString(shapes as List<Rectangle>)
-            page.close()
+                val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
+                val shapes = getShapesFor(pdfAnnotations, page.height)
+                jsonShapes = mapPdfShapesToJsonString(shapes as List<Rectangle>)
+                page.close()
+            }
+            return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)
         }
-        return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)
     }
 
     private fun getSeekableFileDescriptor(pdfPath: String): ParcelFileDescriptor? {
