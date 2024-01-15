@@ -33,6 +33,10 @@ import org.benjinus.pdfium.PdfiumSDK
 import org.benjinus.pdfium.util.Size
 import org.benjinus.pdfium.util.SizeF
 
+/** This class represents a PDF document, providing functionalities for handling pages,
+ *  calculating page size and rendering page bitmap. It's an intermediary between the application
+ *  code and the PDF rendering engine
+ *  */
 class PdfFile internal constructor(
     private val pdfiumSDK: PdfiumSDK?,
     var pdfDocument: PdfDocument?,
