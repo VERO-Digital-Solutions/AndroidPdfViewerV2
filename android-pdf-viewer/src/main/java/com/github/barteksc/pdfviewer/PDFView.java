@@ -860,8 +860,10 @@ public class PDFView extends RelativeLayout {
             callbacks.callOnRender(pdfFile.getPagesCount());
         }
 
-        if (part.isThumbnail() && !cacheManager.getPageParts().contains(part)) {
-            cacheManager.cacheThumbnail(part);
+        if (part.isThumbnail()) {
+            if (!cacheManager.getThumbnails().contains(part)) {
+                cacheManager.cacheThumbnail(part);
+            }
         } else {
             cacheManager.cachePart(part);
         }

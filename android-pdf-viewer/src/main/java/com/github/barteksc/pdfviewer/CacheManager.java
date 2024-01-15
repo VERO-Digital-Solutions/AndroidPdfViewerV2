@@ -16,6 +16,7 @@
 package com.github.barteksc.pdfviewer;
 
 import android.graphics.RectF;
+
 import androidx.annotation.Nullable;
 
 import com.github.barteksc.pdfviewer.model.PagePart;
@@ -120,19 +121,6 @@ class CacheManager {
             }
             return false;
         }
-    }
-
-    /**
-     * Add part if it doesn't exist, recycle bitmap otherwise
-     */
-    private void addWithoutDuplicates(Collection<PagePart> collection, PagePart newPart) {
-        for (PagePart part : collection) {
-            if (part.equals(newPart)) {
-                newPart.getRenderedBitmap().recycle();
-                return;
-            }
-        }
-        collection.add(newPart);
     }
 
     @Nullable
