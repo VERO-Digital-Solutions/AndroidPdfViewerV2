@@ -2,7 +2,7 @@ package com.github.barteksc.pdfviewer.annotation.core.annotations
 
 import android.graphics.PointF
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
-import com.github.barteksc.pdfviewer.util.PublicValue
+import com.github.barteksc.pdfviewer.util.Constants
 import com.github.barteksc.pdfviewer.util.logError
 import com.lowagie.text.Rectangle
 import com.lowagie.text.pdf.PdfAnnotation
@@ -38,7 +38,7 @@ object AnnotationManager {
             val page = 1
 
             val referenceHash = StringBuilder()
-                .append(PublicValue.KEY_REFERENCE_HASH)
+                .append(Constants.KEY_REFERENCE_HASH)
                 .append(UUID.randomUUID().toString())
                 .toString()
 

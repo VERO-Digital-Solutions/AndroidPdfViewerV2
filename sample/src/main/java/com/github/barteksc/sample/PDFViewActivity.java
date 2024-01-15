@@ -15,7 +15,6 @@
  */
 package com.github.barteksc.sample;
 
-import static com.github.barteksc.pdfviewer.util.PublicValue.KEY_REQUEST_FILE_PICKER;
 import static com.github.barteksc.sample.LoggerKt.toast;
 
 import android.content.ActivityNotFoundException;
@@ -44,7 +43,7 @@ import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnTapListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
-import com.github.barteksc.pdfviewer.util.PublicValue;
+import com.github.barteksc.pdfviewer.util.Constants;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
@@ -103,7 +102,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/pdf");
         try {
-            startActivityForResult(intent, KEY_REQUEST_FILE_PICKER);
+            startActivityForResult(intent, Constants.KEY_REQUEST_FILE_PICKER);
         } catch (ActivityNotFoundException e) {
             //alert user that file manager not working
             Toast.makeText(this, R.string.toast_pick_file_error, Toast.LENGTH_SHORT).show();
@@ -125,7 +124,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == PublicValue.KEY_REQUEST_FILE_PICKER) {
+        if (resultCode == RESULT_OK && requestCode == Constants.KEY_REQUEST_FILE_PICKER) {
             if (data != null && data.getData() != null) {
                 this.currUri = data.getData();
                 displayFileFromUri(getApplicationContext());
@@ -152,7 +151,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
             if (pdfFile != null) {
                 pdfFileName = pdfFile.getName();
                 this.configurator = pdfView.fromUri(currUri)
-                        .defaultPage(PublicValue.DEFAULT_PAGE_NUMBER)
+                        .defaultPage(Constants.DEFAULT_PAGE_NUMBER)
                         .onPageChange(this)
                         .enableAnnotationRendering(true)
                         .enableAnnotationHandling(true)
