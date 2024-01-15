@@ -70,8 +70,7 @@ internal fun mapJsonStringToPdfShapes(jsonShapes: String): List<Rectangle> {
     val gson =
         Gson().newBuilder().registerTypeAdapter(Rectangle::class.java, RectangleTypeAdapter())
             .create()
-    val shapes: List<Rectangle> = gson.fromJson(jsonShapes, listType)
-    return shapes
+    return gson.fromJson(jsonShapes, listType)
 }
 
 internal fun mapPdfShapesToJsonString(rectangles: List<Rectangle>): String {
