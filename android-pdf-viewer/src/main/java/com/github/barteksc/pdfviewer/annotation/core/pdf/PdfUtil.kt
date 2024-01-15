@@ -16,7 +16,7 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
 import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
 import com.github.barteksc.pdfviewer.annotation.core.shapes.mapJsonStringToPdfShapes
 import com.github.barteksc.pdfviewer.annotation.core.shapes.mapPdfShapesToJsonString
-import com.github.barteksc.pdfviewer.annotation.core.shapes.toAnnotation
+import com.github.barteksc.pdfviewer.annotation.core.shapes.toAnnotationOrNull
 import com.github.barteksc.pdfviewer.util.logDebug
 import com.github.barteksc.pdfviewer.util.logError
 import com.lowagie.text.pdf.PdfArray
@@ -280,7 +280,7 @@ object PdfUtil {
     private fun convertPngShapesToPdfAnnotations(
         shapes: List<Shape>,
         pageHeight: Int,
-    ): List<Annotation> = shapes.map { it.toAnnotation(pageHeight) }
+    ): List<Annotation> = shapes.mapNotNull { it.toAnnotationOrNull(pageHeight) }
 
     @JvmStatic
     private fun drawPngShapesToPdf(
