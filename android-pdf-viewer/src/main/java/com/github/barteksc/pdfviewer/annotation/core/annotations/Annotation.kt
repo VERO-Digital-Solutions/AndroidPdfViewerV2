@@ -2,9 +2,9 @@ package com.github.barteksc.pdfviewer.annotation.core.annotations
 
 import android.graphics.PointF
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
+import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle.Companion.generateRectangleEdges
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFrom
-import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleEdges
 
 data class Annotation(
     val type: String, val points: List<PointF>, val relations: Relations? = null
@@ -20,7 +20,7 @@ fun Annotation.toRectangleShape(pageHeight: Int): Rectangle {
     )
 
     // rectangle shape's edges
-    val rectangleShapeEdges = mappedPoints.generateRectangleEdges()
+    val rectangleShapeEdges = generateRectangleEdges(mappedPoints)
 
     return Rectangle(points = mappedPoints, edges = rectangleShapeEdges, relations = relations)
 }

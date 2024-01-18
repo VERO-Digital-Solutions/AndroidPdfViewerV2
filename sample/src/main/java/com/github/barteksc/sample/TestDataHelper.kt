@@ -3,8 +3,8 @@ package com.github.barteksc.sample
 import android.graphics.PointF
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
+import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle.Companion.generateRectangleEdges
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
-import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleEdges
 
 class TestDataHelper {
     companion object {
@@ -23,7 +23,7 @@ class TestDataHelper {
 
         fun getMockedRectangle(): List<Rectangle> {
             val corners = getMockedRectangleCorners()
-            val edges = corners.generateRectangleEdges()
+            val edges = generateRectangleEdges(corners)
             val relations = getMockedRectangleRelations()
             val rectangle = Rectangle(points = corners, edges = edges, relations = relations)
             return listOf(rectangle)

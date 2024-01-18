@@ -14,8 +14,8 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
 import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
-import com.github.barteksc.pdfviewer.annotation.core.shapes.mapJsonStringToPdfShapes
-import com.github.barteksc.pdfviewer.annotation.core.shapes.mapPdfShapesToJsonString
+import com.github.barteksc.pdfviewer.annotation.core.shapes.fromJson
+import com.github.barteksc.pdfviewer.annotation.core.shapes.toJson
 import com.github.barteksc.pdfviewer.annotation.core.shapes.toAnnotationOrNull
 import com.github.barteksc.pdfviewer.util.logDebug
 import com.github.barteksc.pdfviewer.util.logError
@@ -62,7 +62,7 @@ object PdfUtil {
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
     fun drawAnnotations(pdfFile: File, pdfPageHeight: Int, jsonShapes: String) {
-        val shapes = mapJsonStringToPdfShapes(jsonShapes)
+        val shapes = fromJson(jsonShapes)
         drawPngShapesToPdf(pdfFile, pdfPageHeight, shapes)
     }
 
@@ -242,7 +242,7 @@ object PdfUtil {
 
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
-                jsonShapes = mapPdfShapesToJsonString(shapes as List<Rectangle>)
+                jsonShapes = toJson(shapes as List<Rectangle>)
                 page.close()
             }
             return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)

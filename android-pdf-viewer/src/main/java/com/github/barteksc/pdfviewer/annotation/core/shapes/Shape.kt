@@ -5,8 +5,6 @@ import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.util.logError
-import com.github.salomonbrys.kotson.jsonNull
-import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJsonArray
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -65,7 +63,7 @@ class ShapeDeserializer : JsonDeserializer<Shape> {
     }
 }
 
-internal fun mapJsonStringToPdfShapes(jsonShapes: String): List<Rectangle> {
+fun fromJson(jsonShapes: String): List<Rectangle> {
     val listType = object : TypeToken<List<Rectangle>>() {}.type
     val gson =
         Gson().newBuilder().registerTypeAdapter(Rectangle::class.java, RectangleTypeAdapter())
@@ -73,42 +71,12 @@ internal fun mapJsonStringToPdfShapes(jsonShapes: String): List<Rectangle> {
     return gson.fromJson(jsonShapes, listType)
 }
 
-internal fun mapPdfShapesToJsonString(rectangles: List<Rectangle>): String {
+fun toJson(rectangles: List<Rectangle>): String {
+    val gson = GsonBuilder()
+        .setLenient()
+        .create()
     val shapesArray = rectangles.map { rectangle ->
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-
-        jsonObject(
-            "type" to rectangle.type,
-            "points" to rectangle.points.map { point ->
-                jsonObject(
-                    "x" to point.x.toString(),
-                    "y" to point.y.toString(),
-                    "z" to jsonNull
-                )
-            }.toJsonArray(),
-            "edges" to rectangle.edges.map {
-                jsonObject(
-                    "start" to jsonObject(
-                        "x" to it.start.x.toString(),
-                        "y" to it.start.y.toString(),
-                        "z" to jsonNull
-                    ),
-                    "end" to jsonObject(
-                        "x" to it.end.x.toString(),
-                        "y" to it.end.y.toString(),
-                        "z" to jsonNull
-                    ),
-                    "value" to "0.0",
-                    "unit" to "",
-                    "distance" to jsonNull,
-                    "name" to "",
-                    "colorCode" to ""
-                )
-            }.toJsonArray(),
-            "relations" to gson.toJsonTree(rectangle.relations)
-        )
+        toJson(rectangle, gson)
     }.toJsonArray()
     return shapesArray.toString()
 }
