@@ -19,7 +19,9 @@ public class Constants {
 
     public static boolean DEBUG_MODE = false;
 
-    /** Between 0 and 1, the thumbnails quality (default 0.3). Increasing this value may cause performance decrease */
+    /**
+     * Between 0 and 1, the thumbnails quality (default 0.3). Increasing this value may cause performance decrease
+     */
     public static float THUMBNAIL_RATIO = 0.3f;
 
     /**
@@ -29,7 +31,10 @@ public class Constants {
      */
     public static float PART_SIZE = 256;
 
-    /** Part of document above and below screen that should be preloaded, in dp */
+    /**
+     * Part of the PDF document above and below the currently visible screen
+     * that should be preloaded for smoother vertical scrolling, in dp
+     */
     public static int PRELOAD_OFFSET = 20;
 
     /** Number of preloaded rows or columns */
