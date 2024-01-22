@@ -93,10 +93,9 @@ import java.util.List;
  * - DocumentPage = A page of the PDF document.
  * - UserPage = A page as defined by the user.
  * By default, they're the same. But the user can change the pages order
- * using {@link #load(DocumentSource, String, int[])}. In this
+ * using {@link #load(DocumentSource, String)}. In this
  * particular case, a userPage of 5 can refer to a documentPage of 17.
  */
-//Todo:update javadoc
 public class PDFView extends RelativeLayout {
 
     private static final String TAG = PDFView.class.getSimpleName();
