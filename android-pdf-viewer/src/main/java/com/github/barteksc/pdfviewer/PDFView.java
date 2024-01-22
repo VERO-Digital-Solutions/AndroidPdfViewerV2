@@ -1513,8 +1513,6 @@ public class PDFView extends RelativeLayout {
         private boolean swipeHorizontal = false;
 
         private boolean annotationRendering = false;
-        //todo:remove?
-        private boolean annotationHandling = false;
 
         private String password = null;
 
@@ -1557,11 +1555,6 @@ public class PDFView extends RelativeLayout {
 
         public Configurator enableAnnotationRendering(boolean annotationRendering) {
             this.annotationRendering = annotationRendering;
-            return this;
-        }
-
-        public Configurator enableAnnotationHandling(boolean annotationHandling) {
-            this.annotationHandling = annotationHandling;
             return this;
         }
 

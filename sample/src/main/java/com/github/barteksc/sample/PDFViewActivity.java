@@ -174,7 +174,6 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                         .defaultPage(Constants.DEFAULT_PAGE_NUMBER)
                         .onPageChange(this)
                         .enableAnnotationRendering(true)
-                        .enableAnnotationHandling(true)
                         .onLoad(this)
                         .enableSwipe(true)
                         .scrollHandle(new DefaultScrollHandle(this))
