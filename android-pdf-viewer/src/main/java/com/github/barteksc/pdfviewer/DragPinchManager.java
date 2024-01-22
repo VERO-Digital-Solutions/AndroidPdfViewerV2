@@ -26,7 +26,6 @@ import android.view.View;
 
 import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
-import com.github.barteksc.pdfviewer.util.LoggerKt;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 
 /**
@@ -230,19 +229,6 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         animationManager.startFlingAnimation(xOffset, yOffset, (int) (velocityX), (int) (velocityY),
                 (int) minX, (int) maxX, (int) minY, (int) maxY);
     }
-// old
-//    @Override
-//    public boolean onScale(ScaleGestureDetector detector) {
-//        float dr = detector.getScaleFactor();
-//        float wantedZoom = pdfView.getZoom() * dr;
-//        if (wantedZoom < MINIMUM_ZOOM) {
-//            dr = MINIMUM_ZOOM / pdfView.getZoom();
-//        } else if (wantedZoom > MAXIMUM_ZOOM) {
-//            dr = MAXIMUM_ZOOM / pdfView.getZoom();
-//        }
-//        pdfView.zoomCenteredRelativeTo(dr, new PointF(detector.getFocusX(), detector.getFocusY()));
-//        return true;
-//    }
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
