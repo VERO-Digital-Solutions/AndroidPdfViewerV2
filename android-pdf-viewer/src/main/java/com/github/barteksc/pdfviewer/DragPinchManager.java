@@ -72,18 +72,6 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         gestureDetector.setIsLongpressEnabled(false);
     }
 
-    private boolean isPageChange(float distance) {
-        return Math.abs(distance) > Math.abs(pdfView.toCurrentScale(swipeVertical ? pdfView.getOptimalPageHeight() : pdfView.getOptimalPageWidth()) / 2);
-    }
-
-//    public void setSwipeEnabled(boolean isSwipeEnabled) {
-//        this.isSwipeEnabled = isSwipeEnabled;
-//    }
-//
-//    public void setSwipeVertical(boolean swipeVertical) {
-//        this.swipeVertical = swipeVertical;
-//    }
-
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         boolean onTapHandled = pdfView.callbacks.callOnTap(e);

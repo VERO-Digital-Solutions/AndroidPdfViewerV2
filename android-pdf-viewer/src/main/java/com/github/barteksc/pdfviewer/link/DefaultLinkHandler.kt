@@ -23,7 +23,7 @@ import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 
 class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
-    override fun handleLinkEvent(event: LinkTapEvent) {
+     override fun handleLinkEvent(event: LinkTapEvent) {
         Log.i(TAG, "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY)
         Log.i(TAG, "--------------------------------------------------")
 
