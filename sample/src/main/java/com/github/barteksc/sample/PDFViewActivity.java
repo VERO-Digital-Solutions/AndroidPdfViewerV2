@@ -75,14 +75,12 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     PDFView pdfView;
 
     @NonConfigurationInstance
-    Uri uri;
-
-    @NonConfigurationInstance
     Integer pageNumber = 0;
 
     String pdfFileName;
 
-    private Uri currUri = null;
+    @NonConfigurationInstance
+    Uri currUri = null;
 
     @OptionsItem(R.id.pickFile)
     void pickFile() {
@@ -119,23 +117,13 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     @AfterViews
     void afterViews() {
         pdfView.setBackgroundColor(Color.LTGRAY);
-        //todo:check
-//        if (uri != null) {
-//            displayFromUri(uri);
-//        } else {
-//            displayFromAsset(SAMPLE_FILE);
-//        }
+        if (currUri != null) {
+            displayFileFromUri(getApplicationContext());
+        } else {
+            displayFromAsset(SAMPLE_FILE);
+        }
         setTitle(pdfFileName);
     }
-
-// todo:check
-//    @OnActivityResult(REQUEST_CODE)
-//    public void onResult(int resultCode, Intent intent) {
-//        if (resultCode == RESULT_OK) {
-//            uri = intent.getData();
-//            displayFromUri(uri);
-//        }
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

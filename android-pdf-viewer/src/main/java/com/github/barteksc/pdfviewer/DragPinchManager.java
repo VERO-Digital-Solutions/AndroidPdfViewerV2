@@ -52,14 +52,6 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         pdfView.setOnTouchListener(this);
     }
 
-//    public void enableDoubletap(boolean enableDoubletap) {
-//        if (enableDoubletap) {
-//            gestureDetector.setOnDoubleTapListener(this);
-//        } else {
-//            gestureDetector.setOnDoubleTapListener(null);
-//        }
-//    }
-
     void enableScrollingAndZooming() {
         enabledScrollingAndZooming = true;
     }

@@ -205,8 +205,6 @@ public class PDFView extends RelativeLayout {
      * Policy for fitting pages to screen
      */
     private FitPolicy pageFitPolicy = FitPolicy.WIDTH;
-//todo:remove?
-//    private int invalidPageColor = Color.WHITE;
 
     private boolean fitEachPage = false;
 
