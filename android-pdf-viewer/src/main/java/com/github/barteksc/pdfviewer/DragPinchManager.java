@@ -26,6 +26,7 @@ import android.view.View;
 
 import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
+import com.github.barteksc.pdfviewer.util.LoggerKt;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 
 /**
@@ -178,7 +179,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         if (!pdfView.isSwipeEnabled()) {
             return false;
         }
-        if (pdfView.isPageFlingEnabled()) {
+        if (true) {
             if (pdfView.pageFillsScreen()) {
                 onBoundedFling(velocityX, velocityY);
             } else {
@@ -296,6 +297,10 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         }
     }
 
+    /**
+     * Checks whether a page fling should be initiated, based on the swipe direction and velocities.
+     * Fling is initiated if the direction is vertical
+     */
     private boolean checkDoPageFling(float velocityX, float velocityY) {
         float absX = Math.abs(velocityX);
         float absY = Math.abs(velocityY);
