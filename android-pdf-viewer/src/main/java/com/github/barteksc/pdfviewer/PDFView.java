@@ -96,6 +96,7 @@ import java.util.List;
  * using {@link #load(DocumentSource, String, int[])}. In this
  * particular case, a userPage of 5 can refer to a documentPage of 17.
  */
+//Todo:update javadoc
 public class PDFView extends RelativeLayout {
 
     private static final String TAG = PDFView.class.getSimpleName();
@@ -109,7 +110,6 @@ public class PDFView extends RelativeLayout {
     private float midZoom = DEFAULT_MID_SCALE;
     private float maxZoom = DEFAULT_MAX_SCALE;
     private float zoomStep = DEFAULT_MID_SCALE;
-
 
     /**
      * START - scrolling in first page direction
@@ -205,6 +205,8 @@ public class PDFView extends RelativeLayout {
      * Policy for fitting pages to screen
      */
     private FitPolicy pageFitPolicy = FitPolicy.WIDTH;
+//todo:remove?
+//    private int invalidPageColor = Color.WHITE;
 
     private boolean fitEachPage = false;
 
@@ -1394,14 +1396,6 @@ public class PDFView extends RelativeLayout {
                 (int) pageSize.getHeight(), 0, (int) mappedX, (int) mappedY);
     }
 
-    public void showLoadingView() {
-
-    }
-
-    public void hideLoadingView() {
-
-    }
-
     public PdfDocument getPdfDocument() {
 
         if (pdfFile == null)
@@ -1521,6 +1515,7 @@ public class PDFView extends RelativeLayout {
         private boolean swipeHorizontal = false;
 
         private boolean annotationRendering = false;
+        //todo:remove?
         private boolean annotationHandling = false;
 
         private String password = null;
@@ -1693,7 +1688,6 @@ public class PDFView extends RelativeLayout {
         }
 
         public void load() {
-
             if (!hasSize) {
                 waitingDocumentConfigurator = this;
                 return;

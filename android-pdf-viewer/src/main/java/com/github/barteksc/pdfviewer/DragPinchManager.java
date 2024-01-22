@@ -52,6 +52,14 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         pdfView.setOnTouchListener(this);
     }
 
+//    public void enableDoubletap(boolean enableDoubletap) {
+//        if (enableDoubletap) {
+//            gestureDetector.setOnDoubleTapListener(this);
+//        } else {
+//            gestureDetector.setOnDoubleTapListener(null);
+//        }
+//    }
+
     void enableScrollingAndZooming() {
         enabledScrollingAndZooming = true;
     }
@@ -63,6 +71,18 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     void disableLongpress() {
         gestureDetector.setIsLongpressEnabled(false);
     }
+
+    private boolean isPageChange(float distance) {
+        return Math.abs(distance) > Math.abs(pdfView.toCurrentScale(swipeVertical ? pdfView.getOptimalPageHeight() : pdfView.getOptimalPageWidth()) / 2);
+    }
+
+//    public void setSwipeEnabled(boolean isSwipeEnabled) {
+//        this.isSwipeEnabled = isSwipeEnabled;
+//    }
+//
+//    public void setSwipeVertical(boolean swipeVertical) {
+//        this.swipeVertical = swipeVertical;
+//    }
 
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -229,6 +249,19 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         animationManager.startFlingAnimation(xOffset, yOffset, (int) (velocityX), (int) (velocityY),
                 (int) minX, (int) maxX, (int) minY, (int) maxY);
     }
+// old
+//    @Override
+//    public boolean onScale(ScaleGestureDetector detector) {
+//        float dr = detector.getScaleFactor();
+//        float wantedZoom = pdfView.getZoom() * dr;
+//        if (wantedZoom < MINIMUM_ZOOM) {
+//            dr = MINIMUM_ZOOM / pdfView.getZoom();
+//        } else if (wantedZoom > MAXIMUM_ZOOM) {
+//            dr = MAXIMUM_ZOOM / pdfView.getZoom();
+//        }
+//        pdfView.zoomCenteredRelativeTo(dr, new PointF(detector.getFocusX(), detector.getFocusY()));
+//        return true;
+//    }
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {

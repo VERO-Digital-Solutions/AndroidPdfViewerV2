@@ -67,6 +67,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     public static final int PERMISSION_CODE = 42042;
     public static final String READ_EXTERNAL_STORAGE = "android.permission.READ_EXTERNAL_STORAGE";
+    public static final String SAMPLE_FILE = "sample.pdf";
 
     PDFView.Configurator configurator = null;
 
@@ -118,8 +119,23 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     @AfterViews
     void afterViews() {
         pdfView.setBackgroundColor(Color.LTGRAY);
+        //todo:check
+//        if (uri != null) {
+//            displayFromUri(uri);
+//        } else {
+//            displayFromAsset(SAMPLE_FILE);
+//        }
         setTitle(pdfFileName);
     }
+
+// todo:check
+//    @OnActivityResult(REQUEST_CODE)
+//    public void onResult(int resultCode, Intent intent) {
+//        if (resultCode == RESULT_OK) {
+//            uri = intent.getData();
+//            displayFromUri(uri);
+//        }
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -132,6 +148,22 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                 Log.e(TAG, "onActivityResult, requestCode:" + requestCode + "resultCode:" + resultCode);
             }
         }
+    }
+
+    private void displayFromAsset(String assetFileName) {
+        pdfFileName = assetFileName;
+
+        pdfView.fromAsset(SAMPLE_FILE)
+                .defaultPage(pageNumber)
+                .onPageChange(this)
+                .enableAnnotationRendering(true)
+                .onLoad(this)
+                .scrollHandle(new DefaultScrollHandle(this))
+                .spacing(10) // in dp
+                .onPageError(this)
+                .onTap(this)
+                .onLongPress(this)
+                .load();
     }
 
     private void displayFileFromUri(Context context) {
