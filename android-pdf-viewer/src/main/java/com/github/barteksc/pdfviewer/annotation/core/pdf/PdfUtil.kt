@@ -12,7 +12,7 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
 import com.github.barteksc.pdfviewer.annotation.core.shapes.fromJson
-import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
+import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectCoordinates
 import com.github.barteksc.pdfviewer.annotation.core.shapes.toJson
 import com.github.barteksc.pdfviewer.util.logDebug
 import com.github.barteksc.pdfviewer.util.logError
@@ -146,7 +146,7 @@ object PdfUtil {
 
         // from the extracted coordinates, calculate the rest
         val squareAnnotationPoints =
-            generateRectangleCoordinates(bottomLeftPoint, topRightPoint)
+            generateRectCoordinates(bottomLeftPoint, topRightPoint)
 
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
