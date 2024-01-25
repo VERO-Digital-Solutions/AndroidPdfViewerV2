@@ -8,15 +8,12 @@ import android.os.ParcelFileDescriptor
 import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
-import com.github.barteksc.pdfviewer.annotation.core.annotations.toRectangleShape
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
-import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
-import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
 import com.github.barteksc.pdfviewer.annotation.core.shapes.fromJson
+import com.github.barteksc.pdfviewer.annotation.core.shapes.generateRectangleCoordinates
 import com.github.barteksc.pdfviewer.annotation.core.shapes.toJson
-import com.github.barteksc.pdfviewer.annotation.core.shapes.toAnnotationOrNull
 import com.github.barteksc.pdfviewer.util.logDebug
 import com.github.barteksc.pdfviewer.util.logError
 import com.lowagie.text.pdf.PdfArray
@@ -242,7 +239,7 @@ object PdfUtil {
 
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
-                jsonShapes = toJson(shapes as List<Rectangle>)
+                jsonShapes = shapes.toJson()
                 page.close()
             }
             return PdfToImageResultData(File(pdfPath), pngFile, pageHeight, jsonShapes)

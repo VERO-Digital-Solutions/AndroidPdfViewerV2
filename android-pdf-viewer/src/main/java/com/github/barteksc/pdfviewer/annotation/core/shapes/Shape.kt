@@ -5,78 +5,88 @@ import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.util.logError
+import com.github.salomonbrys.kotson.jsonNull
+import com.github.salomonbrys.kotson.jsonObject
 import com.github.salomonbrys.kotson.toJsonArray
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
 
 open class Shape(
     @Transient open val type: String = "",
-    @Transient open val points: List<PointF> = emptyList()
+    @Transient open val points: List<PointF> = emptyList(),
+    open val relations: Relations? = null,
+    open val edges: List<Edge> = emptyList()
 ) {
     companion object {
         val TAG: String = PdfUtil.javaClass.simpleName
     }
-}
 
-fun Shape.toAnnotationOrNull(pageHeight: Int): Annotation? {
-    return when (this) {
-        is Rectangle -> toRectangleAnnotation(pageHeight)
-        else -> {
-            logError(Shape.TAG, "Couldn't parse shape $this to annotation")
-            null
+    fun toAnnotationOrNull(pageHeight: Int): Annotation? {
+        fun toShapeAnnotation(type: AnnotationType, pageHeight: Int): Annotation {
+            val points = points.map { it.convertCoordinatesFrom(pageHeight) }
+            return Annotation(
+                type = type.name,
+                points = points,
+                relations = relations
+            )
         }
-    }
-}
 
-fun Shape.toRectangleAnnotation(pageHeight: Int): Annotation {
-    val points = points.map { it.convertCoordinatesFrom(pageHeight) }
-    return Annotation(
-        type = AnnotationType.SQUARE.name,
-        points = points,
-        relations = (this as Rectangle).relations
-    )
-}
-
-class ShapeDeserializer : JsonDeserializer<Shape> {
-    private val TAG: String = ShapeDeserializer::javaClass.name
-
-    override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): Shape? {
-        val jsonObject = json.asJsonObject
-        val shapeType = jsonObject.get("type").asString
-
-        return when (shapeType) {
-            ShapeType.RECTANGLE.name -> context.deserialize(json, Rectangle::class.java)
+        return when (this.type) {
+            ShapeType.RECTANGLE.name -> toShapeAnnotation(AnnotationType.SQUARE, pageHeight)
             else -> {
-                logError(TAG, "JSON Parse error: Unknown shape type: $shapeType")
+                logError(TAG, "Couldn't parse shape with type $type to annotation")
                 null
             }
         }
     }
+
+    fun toJson(gson: Gson) = jsonObject(
+        "type" to type,
+        "points" to points.map { point ->
+            jsonObject(
+                "x" to point.x.toString(),
+                "y" to point.y.toString(),
+                "z" to jsonNull
+            )
+        }.toJsonArray(),
+        "edges" to edges.map {
+            jsonObject(
+                "start" to jsonObject(
+                    "x" to it.start.x.toString(),
+                    "y" to it.start.y.toString(),
+                    "z" to jsonNull
+                ),
+                "end" to jsonObject(
+                    "x" to it.end.x.toString(),
+                    "y" to it.end.y.toString(),
+                    "z" to jsonNull
+                ),
+                "value" to "0.0",
+                "unit" to "",
+                "distance" to jsonNull,
+                "name" to "",
+                "colorCode" to ""
+            )
+        }.toJsonArray(),
+        "relations" to gson.toJsonTree(relations)
+    )
 }
 
-fun fromJson(jsonShapes: String): List<Rectangle> {
-    val listType = object : TypeToken<List<Rectangle>>() {}.type
+fun fromJson(jsonShapes: String): List<Shape> {
+    val listType = object : TypeToken<List<Shape>>() {}.type
     val gson =
-        Gson().newBuilder().registerTypeAdapter(Rectangle::class.java, RectangleTypeAdapter())
+        Gson().newBuilder().registerTypeAdapter(Shape::class.java, ShapeTypeAdapter())
             .create()
     return gson.fromJson(jsonShapes, listType)
 }
 
-fun toJson(rectangles: List<Rectangle>): String {
+fun List<Shape>.toJson(): String {
     val gson = GsonBuilder()
         .setLenient()
         .create()
-    val shapesArray = rectangles.map { rectangle ->
-        toJson(rectangle, gson)
+    val shapesArray = this.map { shape ->
+        shape.toJson(gson)
     }.toJsonArray()
     return shapesArray.toString()
 }

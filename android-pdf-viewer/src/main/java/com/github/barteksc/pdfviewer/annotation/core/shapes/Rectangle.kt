@@ -1,10 +1,6 @@
 package com.github.barteksc.pdfviewer.annotation.core.shapes
 
 import android.graphics.PointF
-import com.github.salomonbrys.kotson.jsonNull
-import com.github.salomonbrys.kotson.jsonObject
-import com.github.salomonbrys.kotson.toJsonArray
-import com.google.gson.Gson
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -17,56 +13,30 @@ import java.lang.reflect.Type
 data class Rectangle(
     override val type: String = ShapeType.RECTANGLE.name,
     override val points: List<PointF> = emptyList(),
-    val edges: List<Edge> = emptyList(),
-    val relations: Relations? = null,
-) : Shape(type, points){
-    companion object{
-        fun generateRectangleEdges(points:List<PointF>): List<Edge> {
+    override val edges: List<Edge> = emptyList(),
+    override val relations: Relations? = null
+    ) : Shape(type, points) {
+    companion object {
+        fun generateRectangleEdges(points: List<PointF>): List<Edge> {
             val edgeTopHorizontal = Edge(points[0], points[1])
             val edgeRightVertical = Edge(points[1], points[2])
             val edgeBottomHorizontal = Edge(points[2], points[3])
             val edgeLeftVertical = Edge(points[3], points[0])
-            return listOf(edgeTopHorizontal, edgeRightVertical, edgeBottomHorizontal, edgeLeftVertical)
+            return listOf(
+                edgeTopHorizontal,
+                edgeRightVertical,
+                edgeBottomHorizontal,
+                edgeLeftVertical
+            )
         }
     }
 }
 
-fun toJson(rectangle: Rectangle, gson: Gson) = jsonObject(
-    "type" to rectangle.type,
-    "points" to rectangle.points.map { point ->
-        jsonObject(
-            "x" to point.x.toString(),
-            "y" to point.y.toString(),
-            "z" to jsonNull
-        )
-    }.toJsonArray(),
-    "edges" to rectangle.edges.map {
-        jsonObject(
-            "start" to jsonObject(
-                "x" to it.start.x.toString(),
-                "y" to it.start.y.toString(),
-                "z" to jsonNull
-            ),
-            "end" to jsonObject(
-                "x" to it.end.x.toString(),
-                "y" to it.end.y.toString(),
-                "z" to jsonNull
-            ),
-            "value" to "0.0",
-            "unit" to "",
-            "distance" to jsonNull,
-            "name" to "",
-            "colorCode" to ""
-        )
-    }.toJsonArray(),
-    "relations" to gson.toJsonTree(rectangle.relations)
-)
-
 data class Edge(val start: PointF, val end: PointF)
 
-class RectangleTypeAdapter : JsonSerializer<Rectangle>, JsonDeserializer<Rectangle> {
+class ShapeTypeAdapter : JsonSerializer<Shape>, JsonDeserializer<Shape> {
     override fun serialize(
-        src: Rectangle?,
+        src: Shape?,
         typeOfSrc: Type?,
         context: JsonSerializationContext?
     ): JsonElement {
@@ -91,9 +61,9 @@ class RectangleTypeAdapter : JsonSerializer<Rectangle>, JsonDeserializer<Rectang
         json: JsonElement?,
         typeOfT: Type?,
         context: JsonDeserializationContext?
-    ): Rectangle {
+    ): Shape {
         val jsonObject = json?.asJsonObject
-        val type = jsonObject?.get("type")?.asString ?: ShapeType.RECTANGLE.name
+        val type = jsonObject?.get("type")?.asString ?: ""
         val corners = context?.deserialize<List<PointF>>(
             jsonObject?.get("points"),
             object : TypeToken<List<PointF>>() {}.type
@@ -106,6 +76,6 @@ class RectangleTypeAdapter : JsonSerializer<Rectangle>, JsonDeserializer<Rectang
             jsonObject?.get("relations"),
             object : TypeToken<Relations>() {}.type
         )
-        return Rectangle(type, corners, edges, relations)
+        return Shape(type, corners, relations, edges)
     }
 }
