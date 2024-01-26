@@ -58,9 +58,14 @@ object PdfUtil {
 
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
-    fun drawAnnotations(pdfFile: File, pdfPageHeight: Int, jsonShapes: String) {
-        val shapes = fromJson(jsonShapes)
-        drawPngShapesToPdf(pdfFile, pdfPageHeight, shapes)
+    fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
+        val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
+        if (resultData == null) {
+            logError(TAG, "Couldn't draw annotations")
+        }else{
+            val shapes = fromJson(jsonShapes)
+            drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
+        }
     }
 
     /** Extract the annotations for the given PDF file path and page number.
