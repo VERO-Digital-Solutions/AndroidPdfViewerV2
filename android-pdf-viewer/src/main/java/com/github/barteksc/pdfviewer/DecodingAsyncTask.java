@@ -19,61 +19,75 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.github.barteksc.pdfviewer.source.DocumentSource;
-import com.shockwave.pdfium.PdfDocument;
-import com.shockwave.pdfium.PdfiumCore;
+
+import org.benjinus.pdfium.PdfDocument;
+import org.benjinus.pdfium.PdfiumSDK;
+import org.benjinus.pdfium.util.Size;
+
+import java.lang.ref.WeakReference;
 
 class DecodingAsyncTask extends AsyncTask<Void, Void, Throwable> {
 
     private boolean cancelled;
 
-    private PDFView pdfView;
 
     private Context context;
-    private PdfiumCore pdfiumCore;
-    private PdfDocument pdfDocument;
+    private PdfiumSDK pdfiumSDK;
+
     private String password;
     private DocumentSource docSource;
-    private int firstPageIdx;
-    private int pageWidth;
-    private int pageHeight;
 
-    DecodingAsyncTask(DocumentSource docSource, String password, PDFView pdfView, PdfiumCore pdfiumCore, int firstPageIdx) {
+    private int[] userPages;
+    private WeakReference<PDFView> pdfViewReference;
+    private PdfFile pdfFile;
+
+    DecodingAsyncTask(DocumentSource docSource, String password, int[] userPages, PDFView pdfView, PdfiumSDK pdfiumSDK) {
         this.docSource = docSource;
-        this.firstPageIdx = firstPageIdx;
+        this.userPages = userPages;
         this.cancelled = false;
-        this.pdfView = pdfView;
+        this.pdfViewReference = new WeakReference<>(pdfView);
         this.password = password;
-        this.pdfiumCore = pdfiumCore;
-        context = pdfView.getContext();
+        this.pdfiumSDK = pdfiumSDK;
     }
 
     @Override
     protected Throwable doInBackground(Void... params) {
         try {
-            pdfDocument = docSource.createDocument(context, pdfiumCore, password);
-            // We assume all the pages are the same size
-            pdfiumCore.openPage(pdfDocument, firstPageIdx);
-            pageWidth = pdfiumCore.getPageWidth(pdfDocument, firstPageIdx);
-            pageHeight = pdfiumCore.getPageHeight(pdfDocument, firstPageIdx);
-            return null;
+            PDFView pdfView = pdfViewReference.get();
+            if (pdfView != null) {
+                PdfDocument pdfDocument = docSource.createDocument(pdfView.getContext(), pdfiumSDK, password);
+                pdfFile = new PdfFile(pdfiumSDK, pdfDocument, pdfView.getPageFitPolicy(), getViewSize(pdfView),
+                        userPages, pdfView.isSwipeVertical(), pdfView.getSpacingPx(), pdfView.isAutoSpacingEnabled(),
+                        pdfView.isFitEachPage());
+                return null;
+            } else {
+                return new NullPointerException("pdfView == null");
+            }
+
         } catch (Throwable t) {
             return t;
         }
+
     }
 
     @Override
     protected void onPostExecute(Throwable t) {
+        PDFView pdfView = pdfViewReference.get();
         if (t != null) {
             pdfView.loadError(t);
             return;
         }
         if (!cancelled) {
-            pdfView.loadComplete(pdfDocument, pageWidth, pageHeight);
+            pdfView.loadComplete(pdfFile);
         }
     }
 
     @Override
     protected void onCancelled() {
         cancelled = true;
+    }
+
+    private Size getViewSize(PDFView pdfView) {
+        return new Size(pdfView.getWidth(), pdfView.getHeight());
     }
 }

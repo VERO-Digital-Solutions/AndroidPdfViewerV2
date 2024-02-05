@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+
 import androidx.core.content.ContextCompat;
+
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -90,6 +92,7 @@ public class DefaultScrollHandle extends RelativeLayout implements ScrollHandle 
         LayoutParams tvlp = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tvlp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
 
+        removeView(textView);
         addView(textView, tvlp);
 
         lp.addRule(align);

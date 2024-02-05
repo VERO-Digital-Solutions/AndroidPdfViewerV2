@@ -19,7 +19,9 @@ public class Constants {
 
     public static boolean DEBUG_MODE = false;
 
-    /** Between 0 and 1, the thumbnails quality (default 0.3). Increasing this value may cause performance decrease */
+    /**
+     * Between 0 and 1, the thumbnails quality (default 0.3). Increasing this value may cause performance decrease
+     */
     public static float THUMBNAIL_RATIO = 0.3f;
 
     /**
@@ -28,6 +30,12 @@ public class Constants {
      * Bigger : user will have to wait longer to have the first visual results
      */
     public static float PART_SIZE = 256;
+
+    /**
+     * Part of the PDF document above and below the currently visible screen
+     * that should be preloaded for smoother vertical scrolling, in dp
+     */
+    public static int PRELOAD_OFFSET = 20;
 
     /** Number of preloaded rows or columns */
     public static int PRELOAD_COUNT = 1;
@@ -48,4 +56,7 @@ public class Constants {
 
     }
 
+    public static final int KEY_REQUEST_FILE_PICKER = 10002;
+    public static final int DEFAULT_PAGE_NUMBER = 0;
+    public static final String KEY_REFERENCE_HASH = "ReferenceHash:";
 }
