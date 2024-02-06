@@ -46,12 +46,10 @@ object PdfUtil {
         return if (resultData == null) {
             logError(
                 TAG,
-                "Couldn't convert pdf annotations to shapes. Existing annotations won't be removed."
+                "Couldn't convert pdf annotations to shapes"
             )
             null
         } else {
-            // Remove annotations from the PDF so we can draw shapes from MeasureLib on the same PDF
-            AnnotationManager.removeAnnotationsFromPdf(pdfFilePath)
             resultData
         }
     }
@@ -59,10 +57,11 @@ object PdfUtil {
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
     fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
+        AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
         val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
         if (resultData == null) {
             logError(TAG, "Couldn't draw annotations")
-        }else{
+        } else {
             val shapes = fromJson(jsonShapes)
             drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
         }
