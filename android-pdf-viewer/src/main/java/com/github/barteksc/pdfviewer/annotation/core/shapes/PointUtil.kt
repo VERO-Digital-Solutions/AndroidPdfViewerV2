@@ -15,3 +15,15 @@ fun generateRectCoordinates(bottomLeft: PointF, topRight: PointF): List<PointF> 
 
     return listOf(topLeft, topRight, bottomRight, bottomLeft)
 }
+
+/** Checks if a point is inside the given rectangle defined by the 2 given points */
+fun checkIfPointIsInsideRect(point: PointF, bottomLeft: PointF, topRight: PointF): Boolean {
+    val rectCoordinates = generateRectCoordinates(bottomLeft, topRight)
+    val topLeft = rectCoordinates[0]
+    val bottomRight = rectCoordinates[2]
+
+    return point.x >= bottomLeft.x && point.x <= bottomRight.x &&
+            point.x >= topLeft.x && point.x <= topRight.x &&
+            point.y >= bottomLeft.y && point.y <= topLeft.y &&
+            point.y >= bottomRight.y && point.y <= topRight.y
+}

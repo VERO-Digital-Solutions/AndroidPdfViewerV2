@@ -18,18 +18,33 @@ package com.github.barteksc.pdfviewer.link
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import android.graphics.PointF
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
+import com.github.barteksc.pdfviewer.util.logDebug
 
 class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
-     override fun handleLinkEvent(event: LinkTapEvent) {
-        Log.i(TAG, "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY)
+    override fun handleLinkEvent(event: LinkTapEvent) {
+        Log.i(
+            TAG,
+            "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY
+        )
         Log.i(TAG, "--------------------------------------------------")
 
         val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.originalX, event.originalY)
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
         Log.i(TAG, "--------------------------------------------------")
+
+        val testBottomLeftPoint = PointF(0.0F, 0.0F)
+        val testTopRightPoint = PointF(100.0F, 100.0F)
+        val isInside = checkIfPointIsInsideRect(
+            pdfPoint,
+            bottomLeft = testBottomLeftPoint,
+            topRight = testTopRightPoint
+        )
+        logDebug(TAG, "isInside: $isInside")
     }
 
     companion object {
