@@ -1505,7 +1505,7 @@ public class PDFView extends RelativeLayout {
 
         private OnPageErrorListener onPageErrorListener;
 
-        private LinkHandler linkHandler = new DefaultLinkHandler(PDFView.this);
+        private LinkHandler linkHandler ;
 
         public int defaultPage = 0;
 
@@ -1607,8 +1607,12 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-        public Configurator linkHandler(LinkHandler linkHandler) {
-            this.linkHandler = linkHandler;
+//        public Configurator pdfFilePath(String pdfFilePath) {
+//            this.pdfFilePath = pdfFilePath;
+//            return this;
+//        }
+        public Configurator linkHandler(String pdfFilePath) {
+            this.linkHandler = new DefaultLinkHandler(PDFView.this, pdfFilePath );
             return this;
         }
 

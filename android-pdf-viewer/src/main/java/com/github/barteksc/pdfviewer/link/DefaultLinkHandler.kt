@@ -18,7 +18,6 @@ package com.github.barteksc.pdfviewer.link
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import android.graphics.PointF
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
@@ -26,7 +25,8 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInside
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 import com.github.barteksc.pdfviewer.util.logDebug
 
-class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
+class DefaultLinkHandler(private val pdfView: PDFView, private val pdfFilePath: String) :
+    LinkHandler {
     override fun handleLinkEvent(event: LinkTapEvent) {
         Log.i(
             TAG,
@@ -38,18 +38,19 @@ class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
         Log.i(TAG, "--------------------------------------------------")
 
-        // todo: pass pdf file as a parameter from somewhere
-        val testFilePath = "/storage/emulated/0/Download/simple-pdf.pdf"
-        val extractedAnnotations =  PdfUtil.getAnnotationsFrom(testFilePath, pageNum = 1)
+        logDebug(TAG, " pdfFilePath : $pdfFilePath ")
+        val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
 
         extractedAnnotations.forEach {
             it.points.forEach { it2 -> logDebug(TAG, "coordinates:$it2") }
             val isInside = checkIfPointIsInsideRect(
                 pdfPoint,
-                bottomLeft =  it.points[0],
-                topRight = it.points[2]
+                //todo: document the points better so it's clearer where they start from
+                bottomLeft = it.points[3],
+                topRight = it.points[1]
             )
-            logDebug(TAG, "isInside: $isInside") }
+            logDebug(TAG, "isInside: $isInside")
+        }
     }
 
     companion object {
