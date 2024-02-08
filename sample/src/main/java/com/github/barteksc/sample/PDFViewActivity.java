@@ -15,6 +15,7 @@
  */
 package com.github.barteksc.sample;
 
+import static com.github.barteksc.sample.LoggerKt.logDebug;
 import static com.github.barteksc.sample.LoggerKt.toast;
 
 import android.content.ActivityNotFoundException;
@@ -177,7 +178,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                         .onLoad(this)
                         .enableSwipe(true)
                         .scrollHandle(new DefaultScrollHandle(this))
-                        .linkHandler(pdfFile.getAbsolutePath())
+                        .linkHandler(pdfFile.getAbsolutePath(), () -> logDebug("MAIN", "Runnable works"))
                         .spacing(10) // in dp
                         .onPageError(this)
                         .onTap(this)

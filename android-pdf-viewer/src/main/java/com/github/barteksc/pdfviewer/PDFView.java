@@ -1607,12 +1607,12 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-//        public Configurator pdfFilePath(String pdfFilePath) {
-//            this.pdfFilePath = pdfFilePath;
-//            return this;
-//        }
-        public Configurator linkHandler(String pdfFilePath) {
-            this.linkHandler = new DefaultLinkHandler(PDFView.this, pdfFilePath );
+        public Configurator linkHandler(String pdfFilePath, Runnable onAnnotationMatchFound) {
+            this.linkHandler = new DefaultLinkHandler(
+                    PDFView.this,
+                    pdfFilePath,
+                    onAnnotationMatchFound
+            );
             return this;
         }
 

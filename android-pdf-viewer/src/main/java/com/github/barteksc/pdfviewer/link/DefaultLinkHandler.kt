@@ -25,7 +25,11 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInside
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 import com.github.barteksc.pdfviewer.util.logDebug
 
-class DefaultLinkHandler(private val pdfView: PDFView, private val pdfFilePath: String) :
+class DefaultLinkHandler(
+    private val pdfView: PDFView,
+    private val pdfFilePath: String,
+    private val onAnnotationMatchFound: Runnable
+) :
     LinkHandler {
     override fun handleLinkEvent(event: LinkTapEvent) {
         Log.i(
@@ -50,6 +54,7 @@ class DefaultLinkHandler(private val pdfView: PDFView, private val pdfFilePath: 
             )
             if (isInside) {
                 logDebug(TAG, "touched annotation with relation ${it.relations}")
+                onAnnotationMatchFound.run()
                 return@forEach
             }
         }
