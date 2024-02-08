@@ -6,6 +6,7 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle.Companion.
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFrom
 
+/**  Points are in the order: bottomLeft, topLeft, topRight, bottomRight */
 data class Annotation(
     val type: String, val points: List<PointF>, val relations: Relations? = null
 ){

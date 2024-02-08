@@ -21,6 +21,7 @@ package com.github.barteksc.pdfviewer.link
 import android.graphics.PointF
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 import com.github.barteksc.pdfviewer.util.logDebug
@@ -37,14 +38,18 @@ class DefaultLinkHandler(private val pdfView: PDFView) : LinkHandler {
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
         Log.i(TAG, "--------------------------------------------------")
 
-        val testBottomLeftPoint = PointF(0.0F, 0.0F)
-        val testTopRightPoint = PointF(100.0F, 100.0F)
-        val isInside = checkIfPointIsInsideRect(
-            pdfPoint,
-            bottomLeft = testBottomLeftPoint,
-            topRight = testTopRightPoint
-        )
-        logDebug(TAG, "isInside: $isInside")
+        // todo: pass pdf file as a parameter from somewhere
+        val testFilePath = "/storage/emulated/0/Download/simple-pdf.pdf"
+        val extractedAnnotations =  PdfUtil.getAnnotationsFrom(testFilePath, pageNum = 1)
+
+        extractedAnnotations.forEach {
+            it.points.forEach { it2 -> logDebug(TAG, "coordinates:$it2") }
+            val isInside = checkIfPointIsInsideRect(
+                pdfPoint,
+                bottomLeft =  it.points[0],
+                topRight = it.points[2]
+            )
+            logDebug(TAG, "isInside: $isInside") }
     }
 
     companion object {
