@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
+import com.github.barteksc.pdfviewer.annotation.core.pdf.DocumentationOpener;
 import com.github.barteksc.pdfviewer.exception.PageRenderingException;
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler;
 import com.github.barteksc.pdfviewer.link.LinkHandler;
@@ -1607,11 +1608,11 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-        public Configurator linkHandler(String pdfFilePath, Runnable onAnnotationMatchFound) {
+        public Configurator linkHandler(String pdfFilePath, DocumentationOpener opener) {
             this.linkHandler = new DefaultLinkHandler(
                     PDFView.this,
                     pdfFilePath,
-                    onAnnotationMatchFound
+                    opener
             );
             return this;
         }
