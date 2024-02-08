@@ -49,7 +49,10 @@ class DefaultLinkHandler(private val pdfView: PDFView, private val pdfFilePath: 
                 bottomLeft = it.points[3],
                 topRight = it.points[1]
             )
-            logDebug(TAG, "isInside: $isInside")
+            if (isInside) {
+                logDebug(TAG, "touched annotation with relation ${it.relations}")
+                return@forEach
+            }
         }
     }
 
