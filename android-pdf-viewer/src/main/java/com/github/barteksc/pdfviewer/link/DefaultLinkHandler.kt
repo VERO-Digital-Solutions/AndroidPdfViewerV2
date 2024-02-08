@@ -45,9 +45,8 @@ class DefaultLinkHandler(private val pdfView: PDFView, private val pdfFilePath: 
             it.points.forEach { it2 -> logDebug(TAG, "coordinates:$it2") }
             val isInside = checkIfPointIsInsideRect(
                 pdfPoint,
-                //todo: document the points better so it's clearer where they start from
-                bottomLeft = it.points[3],
-                topRight = it.points[1]
+                topRight = it.points[1],
+                bottomLeft = it.points[3]
             )
             if (isInside) {
                 logDebug(TAG, "touched annotation with relation ${it.relations}")
