@@ -24,7 +24,6 @@ import com.github.barteksc.pdfviewer.annotation.core.pdf.DocumentationOpener
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
-import com.github.barteksc.pdfviewer.util.logDebug
 
 class DefaultLinkHandler(
     private val pdfView: PDFView,
@@ -37,24 +36,19 @@ class DefaultLinkHandler(
             TAG,
             "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY
         )
-        Log.i(TAG, "--------------------------------------------------")
 
         val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.originalX, event.originalY)
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
-        Log.i(TAG, "--------------------------------------------------")
 
-        logDebug(TAG, " pdfFilePath : $pdfFilePath ")
         val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-
         extractedAnnotations.forEach {
-            it.points.forEach { it2 -> logDebug(TAG, "coordinates:$it2") }
-            val isInside = checkIfPointIsInsideRect(
+            val isAnnotationMatchFound = checkIfPointIsInsideRect(
                 pdfPoint,
                 topRight = it.points[1],
                 bottomLeft = it.points[3]
             )
             val documentation = it.relations?.documentation?.get(0)
-            if (isInside) {
+            if (isAnnotationMatchFound) {
                 if (documentation != null){
                     opener.openDocumentation(it.relations.documentation[0].documentId)
                     return@forEach
