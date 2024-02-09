@@ -1,5 +1,5 @@
-package com.github.barteksc.pdfviewer.annotation.core.pdf;
+package com.github.barteksc.pdfviewer.annotation.core.pdf
 
-public interface DocumentationOpener {
-    void openDocumentation(String documentationID);
+interface DocumentationOpener {
+    fun openDocumentation(documentationID: String?)
 }
