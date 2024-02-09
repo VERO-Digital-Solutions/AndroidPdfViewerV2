@@ -41,16 +41,19 @@ class DefaultLinkHandler(
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
 
         val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-        extractedAnnotations.forEach {
+        extractedAnnotations.forEach { annotation ->
             val isAnnotationMatchFound = checkIfPointIsInsideRect(
                 pdfPoint,
-                topRight = it.points[1],
-                bottomLeft = it.points[3]
+                topRight = annotation.points[1],
+                bottomLeft = annotation.points[3]
             )
-            val documentation = it.relations?.documentation?.get(0)
+            val documentation = annotation.relations?.documentation?.get(0)
             if (isAnnotationMatchFound) {
-                if (documentation != null){
-                    opener.openDocumentation(it.relations.documentation[0].documentId)
+                if (documentation != null) {
+                    opener.openDocumentation(
+                        annotation.relations.documentation[0].schemaId,
+                        annotation.relations.documentation[0].documentId
+                    )
                     return@forEach
                 }
             }
