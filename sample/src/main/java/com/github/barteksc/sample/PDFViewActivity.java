@@ -178,7 +178,8 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                         .onLoad(this)
                         .enableSwipe(true)
                         .scrollHandle(new DefaultScrollHandle(this))
-                        .linkHandler(pdfFile.getAbsolutePath(), documentationId -> {})
+                        .linkHandler(pdfFile.getAbsolutePath(), documentationId ->
+                                logDebug(TAG, "Clicked annotation with documentation id" + documentationId))
                         .spacing(10) // in dp
                         .onPageError(this)
                         .onTap(this)
