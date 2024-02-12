@@ -20,7 +20,7 @@ package com.github.barteksc.pdfviewer.link
  */
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
-import com.github.barteksc.pdfviewer.annotation.core.pdf.DocumentationOpener
+import com.github.barteksc.pdfviewer.annotation.core.pdf.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
@@ -28,7 +28,7 @@ import com.github.barteksc.pdfviewer.model.LinkTapEvent
 class DefaultLinkHandler(
     private val pdfView: PDFView,
     private val pdfFilePath: String,
-    private val opener: DocumentationOpener
+    private val listener: OnAnnotationPressListener
 ) :
     LinkHandler {
     override fun handleLinkEvent(event: LinkTapEvent) {
@@ -50,7 +50,7 @@ class DefaultLinkHandler(
             val documentation = annotation.relations?.documentation?.get(0)
             if (isAnnotationMatchFound) {
                 if (documentation != null) {
-                    opener.openDocumentation(
+                    listener.openDocumentation(
                         annotation.relations.documentation[0].schemaId,
                         annotation.relations.documentation[0].documentId
                     )
