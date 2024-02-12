@@ -117,7 +117,7 @@ class Callbacks {
         onLongPressListener?.onLongPress(event)
     }
 
-    fun callLinkHandler(event: LinkTapEvent?) {
+    fun callTapHandler(event: LinkTapEvent?) {
         tapHandler?.handleLinkEvent(event)
     }
 }

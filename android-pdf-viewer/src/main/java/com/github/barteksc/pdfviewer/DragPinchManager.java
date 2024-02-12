@@ -86,7 +86,7 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
         float mappedX = -pdfView.getCurrentXOffset() + x;
         float mappedY = -pdfView.getCurrentYOffset() + y;
 
-        pdfView.callbacks.callLinkHandler(new LinkTapEvent(x, y, mappedX, mappedY));
+        pdfView.callbacks.callTapHandler(new LinkTapEvent(x, y, mappedX, mappedY));
         return true;
     }
 
