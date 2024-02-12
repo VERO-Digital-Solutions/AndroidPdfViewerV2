@@ -45,7 +45,7 @@ class DefaultTapHandler(
             checkIfPointIsInsideAnnotation(pdfPoint, annotation)
         }.let { annotation ->
             if (annotation?.relations?.documentation?.isNotEmpty() == true) {
-                listener.openDocumentation(
+                listener.onAnnotationPressed(
                     annotation.relations.documentation[0]
                 )
             }
