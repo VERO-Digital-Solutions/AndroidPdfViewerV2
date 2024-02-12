@@ -37,7 +37,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
-import com.github.barteksc.pdfviewer.annotation.core.pdf.OnAnnotationPressListener;
+import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener;
 import com.github.barteksc.pdfviewer.exception.PageRenderingException;
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler;
 import com.github.barteksc.pdfviewer.link.LinkHandler;

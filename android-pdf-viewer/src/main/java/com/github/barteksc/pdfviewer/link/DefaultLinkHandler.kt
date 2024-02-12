@@ -20,7 +20,7 @@ package com.github.barteksc.pdfviewer.link
  */
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
-import com.github.barteksc.pdfviewer.annotation.core.pdf.OnAnnotationPressListener
+import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
