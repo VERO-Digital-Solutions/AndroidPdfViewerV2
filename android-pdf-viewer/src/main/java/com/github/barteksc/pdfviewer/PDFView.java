@@ -1608,11 +1608,11 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-        public Configurator linkHandler(String pdfFilePath, OnAnnotationPressListener opener) {
+        public Configurator tapHandler(String pdfFilePath, OnAnnotationPressListener listener) {
             this.tapHandler = new DefaultTapHandler(
                     PDFView.this,
                     pdfFilePath,
-                    opener
+                    listener
             );
             return this;
         }
