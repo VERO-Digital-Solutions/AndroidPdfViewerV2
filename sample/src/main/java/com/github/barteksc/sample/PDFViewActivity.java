@@ -15,6 +15,7 @@
  */
 package com.github.barteksc.sample;
 
+import static com.github.barteksc.sample.LoggerKt.logDebug;
 import static com.github.barteksc.sample.LoggerKt.toast;
 
 import android.content.ActivityNotFoundException;
@@ -171,9 +172,13 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
             if (pdfFile != null) {
                 pdfFileName = pdfFile.getName();
-                OnAnnotationPressListener onAnnotationPressListener = (schemaId, documentId) ->
-                        System.out.println("Schema ID: " + schemaId +
-                                ", Document ID: " + documentId);
+                OnAnnotationPressListener onAnnotationPressListener = (documentation) -> {
+                    if (documentation != null) {
+                        logDebug(TAG, "Schema ID: " + documentation.getSchemaId() +
+                                ", Document ID: " + documentation.getDocumentId());
+                    }
+                };
+
                 this.configurator = pdfView.fromUri(currUri)
                         .defaultPage(Constants.DEFAULT_PAGE_NUMBER)
                         .onPageChange(this)

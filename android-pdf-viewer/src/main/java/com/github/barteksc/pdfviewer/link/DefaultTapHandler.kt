@@ -20,9 +20,9 @@ package com.github.barteksc.pdfviewer.link
  */
 import android.util.Log
 import com.github.barteksc.pdfviewer.PDFView
-import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
-import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
+import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
+import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 
 class DefaultTapHandler(
@@ -41,21 +41,13 @@ class DefaultTapHandler(
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
 
         val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-        extractedAnnotations.forEach { annotation ->
-            val isAnnotationMatchFound = checkIfPointIsInsideRect(
-                pdfPoint,
-                topRight = annotation.points[1],
-                bottomLeft = annotation.points[3]
-            )
-            val documentation = annotation.relations?.documentation?.get(0)
-            if (isAnnotationMatchFound) {
-                if (documentation != null) {
-                    listener.openDocumentation(
-                        annotation.relations.documentation[0].schemaId,
-                        annotation.relations.documentation[0].documentId
-                    )
-                    return@forEach
-                }
+        extractedAnnotations.firstOrNull { annotation ->
+            checkIfPointIsInsideAnnotation(pdfPoint, annotation)
+        }.let { annotation ->
+            if (annotation?.relations?.documentation?.isNotEmpty() == true) {
+                listener.openDocumentation(
+                    annotation.relations.documentation[0]
+                )
             }
         }
     }

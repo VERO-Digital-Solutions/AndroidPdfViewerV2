@@ -1,6 +1,7 @@
 package com.github.barteksc.pdfviewer.annotation.core.shapes
 
 import android.graphics.PointF
+import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 
 /** Convert image coordinates to pdf coordinates and vice versa, no scale. Y-axis is inverted */
 fun PointF.convertCoordinatesFrom(pageHeight: Int) = PointF(x, pageHeight - y)
@@ -16,11 +17,9 @@ fun generateRectCoordinates(bottomLeft: PointF, topRight: PointF): List<PointF> 
     return listOf(topLeft, topRight, bottomRight, bottomLeft)
 }
 
-/** Checks if a point is inside the given rectangle defined by the 2 given points */
-fun checkIfPointIsInsideRect(point: PointF, bottomLeft: PointF, topRight: PointF): Boolean {
-    val rectCoordinates = generateRectCoordinates(bottomLeft, topRight)
-    val topLeft = rectCoordinates[0]
-    val bottomRight = rectCoordinates[2]
+/** Checks if a point is inside the given annotation's rectangle */
+fun checkIfPointIsInsideAnnotation(point: PointF, annotation: Annotation): Boolean {
+    val (topLeft, topRight, bottomRight, bottomLeft) = annotation.points
 
     return point.x >= bottomLeft.x && point.x <= bottomRight.x &&
             point.x >= topLeft.x && point.x <= topRight.x &&
