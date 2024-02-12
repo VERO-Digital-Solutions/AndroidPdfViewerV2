@@ -17,7 +17,7 @@ package com.github.barteksc.pdfviewer.link;
 
 import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 
-public interface LinkHandler {
+public interface TapHandler {
 
     /**
      * Called when link was tapped by user

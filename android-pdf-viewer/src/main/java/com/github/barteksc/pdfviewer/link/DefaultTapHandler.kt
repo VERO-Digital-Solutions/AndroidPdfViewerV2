@@ -25,12 +25,12 @@ import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideRect
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 
-class DefaultLinkHandler(
+class DefaultTapHandler(
     private val pdfView: PDFView,
     private val pdfFilePath: String,
     private val listener: OnAnnotationPressListener
 ) :
-    LinkHandler {
+    TapHandler {
     override fun handleLinkEvent(event: LinkTapEvent) {
         Log.i(
             TAG,
@@ -61,6 +61,6 @@ class DefaultLinkHandler(
     }
 
     companion object {
-        private val TAG = DefaultLinkHandler::class.java.simpleName
+        private val TAG = DefaultTapHandler::class.java.simpleName
     }
 }

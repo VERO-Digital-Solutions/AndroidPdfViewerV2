@@ -21,7 +21,7 @@ import android.view.MotionEvent
  * limitations under the License.
  */
 
-import com.github.barteksc.pdfviewer.link.LinkHandler
+import com.github.barteksc.pdfviewer.link.TapHandler
 import com.github.barteksc.pdfviewer.model.LinkTapEvent
 
 class Callbacks {
@@ -75,7 +75,7 @@ class Callbacks {
     /**
      * Call back object to call when clicking link
      */
-    var linkHandler: LinkHandler? = null
+    var tapHandler: TapHandler? = null
 
     fun callOnLoadComplete(pagesCount: Int) {
         if (onLoadCompleteListener != null) {
@@ -118,6 +118,6 @@ class Callbacks {
     }
 
     fun callLinkHandler(event: LinkTapEvent?) {
-        linkHandler?.handleLinkEvent(event)
+        tapHandler?.handleLinkEvent(event)
     }
 }
