@@ -34,7 +34,7 @@ class DefaultTapHandler(
     override fun handleLinkEvent(event: LinkTapEvent) {
         Log.i(
             TAG,
-            "handleLinkEvent - event ¬--> X: " + event.originalX + " | Y: " + event.originalY
+            "handleLinkEvent - event --> X: " + event.originalX + " | Y: " + event.originalY
         )
 
         val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.originalX, event.originalY)
