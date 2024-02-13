@@ -20,49 +20,44 @@ package com.github.barteksc.pdfviewer.link
  */
 import android.net.Uri
 import android.util.Log
+import android.view.MotionEvent
 import androidx.core.net.toFile
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
-import com.github.barteksc.pdfviewer.model.LinkTapEvent
+import com.github.barteksc.pdfviewer.listener.OnTapListener
 import com.github.barteksc.pdfviewer.util.logInfo
-import java.lang.IllegalArgumentException
 
-class DefaultTapHandler(
+class CustomOnTapListener(
     private val pdfView: PDFView,
     private val pdfUri: Uri,
     private val listener: OnAnnotationPressListener
-) :
-    TapHandler {
-    override fun handleLinkEvent(event: LinkTapEvent) {
-        try {
+) : OnTapListener {
+
+    override fun onTap(event: MotionEvent): Boolean {
+        return try {
             val pdfFilePath = pdfUri.toFile().absolutePath
-
-            Log.i(
-                TAG,
-                "handleLinkEvent - event --> X: " + event.originalX + " | Y: " + event.originalY
-            )
-
-            val pdfPoint =
-                pdfView.convertScreenPintsToPdfCoordinates(event.originalX, event.originalY)
+            Log.i(TAG, "handleLinkEvent - event --> X: " + event.x + " | Y: " + event.y)
+            val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.x, event.y)
             Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
-
             val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
-            } ?: return
+            } ?: return false
             if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
-                listener.onAnnotationPressed(
-                    clickedAnnotation.relations.documentation[0]
-                )
+                listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                true
+            } else {
+                false
             }
         } catch (e: IllegalArgumentException) {
             logInfo(TAG, "Extracting filepath for content uri is not possible")
+            false
         }
     }
 
     companion object {
-        private val TAG = DefaultTapHandler::class.java.simpleName
+        private val TAG = CustomOnTapListener::class.java.simpleName
     }
 }
