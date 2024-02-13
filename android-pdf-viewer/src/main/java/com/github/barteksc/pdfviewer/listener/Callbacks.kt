@@ -1,7 +1,5 @@
 package com.github.barteksc.pdfviewer.listener
 
-import android.view.MotionEvent
-
 /**
  * Copyright 2017 Bartosz Schiller
  *
@@ -21,8 +19,7 @@ import android.view.MotionEvent
  * limitations under the License.
  */
 
-import com.github.barteksc.pdfviewer.link.LinkHandler
-import com.github.barteksc.pdfviewer.model.LinkTapEvent
+import android.view.MotionEvent
 
 class Callbacks {
     /**
@@ -72,11 +69,6 @@ class Callbacks {
      */
     var onLongPressListener: OnLongPressListener? = null
 
-    /**
-     * Call back object to call when clicking link
-     */
-    var linkHandler: LinkHandler? = null
-
     fun callOnLoadComplete(pagesCount: Int) {
         if (onLoadCompleteListener != null) {
             onLoadCompleteListener!!.loadComplete(pagesCount)
@@ -115,9 +107,5 @@ class Callbacks {
 
     fun callOnLongPress(event: MotionEvent?) {
         onLongPressListener?.onLongPress(event)
-    }
-
-    fun callLinkHandler(event: LinkTapEvent?) {
-        linkHandler?.handleLinkEvent(event)
     }
 }

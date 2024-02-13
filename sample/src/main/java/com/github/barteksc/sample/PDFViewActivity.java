@@ -15,6 +15,7 @@
  */
 package com.github.barteksc.sample;
 
+import static com.github.barteksc.sample.LoggerKt.logDebug;
 import static com.github.barteksc.sample.LoggerKt.toast;
 
 import android.content.ActivityNotFoundException;
@@ -36,6 +37,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnLongPressListener;
@@ -170,6 +172,13 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
             if (pdfFile != null) {
                 pdfFileName = pdfFile.getName();
+                OnAnnotationPressListener onAnnotationPressListener = (documentation) -> {
+                    if (documentation != null) {
+                        logDebug(TAG, "Schema ID: " + documentation.getSchemaId() +
+                                ", Document ID: " + documentation.getDocumentId());
+                    }
+                };
+
                 this.configurator = pdfView.fromUri(currUri)
                         .defaultPage(Constants.DEFAULT_PAGE_NUMBER)
                         .onPageChange(this)
@@ -177,6 +186,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                         .onLoad(this)
                         .enableSwipe(true)
                         .scrollHandle(new DefaultScrollHandle(this))
+                        .onTap(currUri, onAnnotationPressListener)
                         .spacing(10) // in dp
                         .onPageError(this)
                         .onTap(this)

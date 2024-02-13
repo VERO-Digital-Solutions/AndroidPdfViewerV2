@@ -24,7 +24,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
-import com.github.barteksc.pdfviewer.model.LinkTapEvent;
 import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 
@@ -67,7 +66,6 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         boolean onTapHandled = pdfView.callbacks.callOnTap(e);
-        checkTappedLink(e.getX(), e.getY());
         if (!onTapHandled) {
             ScrollHandle ps = pdfView.getScrollHandle();
             if (ps != null && !pdfView.documentFitsView()) {
@@ -79,14 +77,6 @@ class DragPinchManager implements GestureDetector.OnGestureListener, GestureDete
             }
         }
         pdfView.performClick();
-        return true;
-    }
-
-    private boolean checkTappedLink(float x, float y) {
-        float mappedX = -pdfView.getCurrentXOffset() + x;
-        float mappedY = -pdfView.getCurrentYOffset() + y;
-
-        pdfView.callbacks.callLinkHandler(new LinkTapEvent(x, y, mappedX, mappedY));
         return true;
     }
 

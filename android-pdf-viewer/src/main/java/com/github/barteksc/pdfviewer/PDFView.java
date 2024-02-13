@@ -38,9 +38,9 @@ import android.view.MotionEvent;
 import android.widget.RelativeLayout;
 
 import com.github.barteksc.pdfviewer.exception.PageRenderingException;
-import com.github.barteksc.pdfviewer.link.DefaultLinkHandler;
-import com.github.barteksc.pdfviewer.link.LinkHandler;
+import com.github.barteksc.pdfviewer.link.CustomOnTapListener;
 import com.github.barteksc.pdfviewer.listener.Callbacks;
+import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
@@ -1505,8 +1505,6 @@ public class PDFView extends RelativeLayout {
 
         private OnPageErrorListener onPageErrorListener;
 
-        private LinkHandler linkHandler = new DefaultLinkHandler(PDFView.this);
-
         public int defaultPage = 0;
 
         private boolean swipeHorizontal = false;
@@ -1607,8 +1605,8 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-        public Configurator linkHandler(LinkHandler linkHandler) {
-            this.linkHandler = linkHandler;
+        public Configurator onTap(Uri uri, OnAnnotationPressListener listener) {
+            this.onTapListener = new CustomOnTapListener(PDFView.this, uri, listener);
             return this;
         }
 
@@ -1693,7 +1691,6 @@ public class PDFView extends RelativeLayout {
             PDFView.this.callbacks.setOnTapListener(onTapListener);
             PDFView.this.callbacks.setOnLongPressListener(onLongPressListener);
             PDFView.this.callbacks.setOnPageErrorListener(onPageErrorListener);
-            PDFView.this.callbacks.setLinkHandler(linkHandler);
             PDFView.this.setSwipeEnabled(enableSwipe);
             PDFView.this.setNightMode(nightMode);
             PDFView.this.enableDoubletap(enableDoubletap);
@@ -1737,7 +1734,6 @@ public class PDFView extends RelativeLayout {
             PDFView.this.callbacks.setOnTapListener(onTapListener);
             PDFView.this.callbacks.setOnLongPressListener(onLongPressListener);
             PDFView.this.callbacks.setOnPageErrorListener(onPageErrorListener);
-            PDFView.this.callbacks.setLinkHandler(linkHandler);
             PDFView.this.setScrollHandle(scrollHandle);
 
             if (currPage != -1) {
