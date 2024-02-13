@@ -38,9 +38,9 @@ class CustomOnTapListener(
     override fun onTap(event: MotionEvent): Boolean {
         return try {
             val pdfFilePath = pdfUri.toFile().absolutePath
-            Log.i(TAG, "handleLinkEvent - event --> X: " + event.x + " | Y: " + event.y)
+            Log.i(TAG, "tap event --> X: " + event.x + " | Y: " + event.y)
             val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.x, event.y)
-            Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
+            Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
             val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
