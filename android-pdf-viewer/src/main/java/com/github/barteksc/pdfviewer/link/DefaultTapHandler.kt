@@ -41,14 +41,13 @@ class DefaultTapHandler(
         Log.i(TAG, "handleLinkEvent - pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
 
         val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-        extractedAnnotations.firstOrNull { annotation ->
+        val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
             checkIfPointIsInsideAnnotation(pdfPoint, annotation)
-        }.let { annotation ->
-            if (annotation?.relations?.documentation?.isNotEmpty() == true) {
-                listener.onAnnotationPressed(
-                    annotation.relations.documentation[0]
-                )
-            }
+        } ?: return
+        if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+            listener.onAnnotationPressed(
+                clickedAnnotation.relations.documentation[0]
+            )
         }
     }
 
