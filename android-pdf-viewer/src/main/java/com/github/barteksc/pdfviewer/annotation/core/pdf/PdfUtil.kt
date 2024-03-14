@@ -22,6 +22,8 @@ import com.lowagie.text.pdf.PdfName
 import com.lowagie.text.pdf.PdfNumber
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -37,7 +39,7 @@ object PdfUtil {
     /** Uses the passed PDF file to create a PNG image from the first page,
      *  maps the PDF annotations to shapes that will be saved as json string */
     @JvmStatic
-    fun getPdfToImageResultData(
+    suspend fun getPdfToImageResultData(
         pdfFilePath: String,
         outputDirectory: String
     ): PdfToImageResultData? {
@@ -56,7 +58,7 @@ object PdfUtil {
 
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
-    fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
+    suspend fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
         AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
         val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
         if (resultData == null) {
@@ -71,62 +73,65 @@ object PdfUtil {
      * In OpenPdf, pages start from 1
      * Page number is always 1 for now */
     @JvmStatic
-    fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
+    suspend fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
         try {
-            if (filePath.isEmpty()) throw Exception("Input file is empty")
-            val file = File(filePath)
-            if (!file.exists()) throw Exception("Input file does not exist")
+         return   withContext(Dispatchers.IO){
+               if (filePath.isEmpty()) throw Exception("Input file is empty")
+               val file = File(filePath)
+               if (!file.exists()) throw Exception("Input file does not exist")
 
-            val inputStream: InputStream = FileInputStream(file)
-            val reader = PdfReader(inputStream)
-            val annotationsList = mutableListOf<Annotation>()
+               val inputStream: InputStream = FileInputStream(file)
+               val reader = PdfReader(inputStream)
+               val annotationsList = mutableListOf<Annotation>()
 
-            // read annotations for the given page
-            val page: PdfDictionary = reader.getPageN(pageNum)
-            val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-            if (annots == null) {
-                logError(TAG, "Annotations array for page $pageNum is null")
-            } else {
-                logDebug(TAG, "Annotations array for page $pageNum: $annots")
-                // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
-                val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
-                for (i in 0 until annots.size()) {
-                    val annotation: PdfDictionary = annots.getAsDict(i)
-                    // Extract extras
-                    // coordinates of 2 corners of the rectangle of the annotation
-                    val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
-                    // type of annotation
-                    val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
-                    if (subtype != null && subtype in annotationsWithRect) {
-                        if (rectArray != null && rectArray.size() == 4) {
-                            // bottom left corner's coordinates
-                            val llx: Float = rectArray.getAsNumber(0).floatValue()
-                            val lly: Float = rectArray.getAsNumber(1).floatValue()
-                            // top right corner's coordinates
-                            val urx: Float = rectArray.getAsNumber(2).floatValue()
-                            val ury: Float = rectArray.getAsNumber(3).floatValue()
+               // read annotations for the given page
+               val page: PdfDictionary = reader.getPageN(pageNum)
+               val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
+               if (annots == null) {
+                   logError(TAG, "Annotations array for page $pageNum is null")
+               } else {
+                   logDebug(TAG, "Annotations array for page $pageNum: $annots")
+                   // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
+                   val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
+                   for (i in 0 until annots.size()) {
+                       val annotation: PdfDictionary = annots.getAsDict(i)
+                       // Extract extras
+                       // coordinates of 2 corners of the rectangle of the annotation
+                       val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
+                       // type of annotation
+                       val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
+                       if (subtype != null && subtype in annotationsWithRect) {
+                           if (rectArray != null && rectArray.size() == 4) {
+                               // bottom left corner's coordinates
+                               val llx: Float = rectArray.getAsNumber(0).floatValue()
+                               val lly: Float = rectArray.getAsNumber(1).floatValue()
+                               // top right corner's coordinates
+                               val urx: Float = rectArray.getAsNumber(2).floatValue()
+                               val ury: Float = rectArray.getAsNumber(3).floatValue()
 
-                            val extractedAnnotation: Annotation? = when (subtype) {
-                                PdfName.SQUARE -> getExtractedSquareAnnotation(
-                                    annotation,
-                                    llx,
-                                    lly,
-                                    urx,
-                                    ury,
-                                )
+                               val extractedAnnotation: Annotation? = when (subtype) {
+                                   PdfName.SQUARE -> getExtractedSquareAnnotation(
+                                       annotation,
+                                       llx,
+                                       lly,
+                                       urx,
+                                       ury,
+                                   )
 
-                                else -> null
-                            }
-                            if (extractedAnnotation != null) {
-                                annotationsList.add(extractedAnnotation)
-                            }
-                        }
-                    } else {
-                        logError(TAG, "Annotation is not recognised")
-                    }
-                }
-            }
-            return annotationsList
+                                   else -> null
+                               }
+                               if (extractedAnnotation != null) {
+                                   annotationsList.add(extractedAnnotation)
+                               }
+                           }
+                       } else {
+                           logError(TAG, "Annotation is not recognised")
+                       }
+                   }
+               }
+               return@withContext annotationsList
+           }
+
         } catch (e: Exception) {
             e.message?.let { logError(TAG, it) }
             e.printStackTrace()
@@ -211,7 +216,7 @@ object PdfUtil {
      *  map PDF annotations to image shapes, save the PNG image to the given output directory
      */
     @JvmStatic
-    private fun convertPdfAnnotationsToPngShapes(
+    private suspend fun convertPdfAnnotationsToPngShapes(
         pdfPath: String, outputDirectory: String
     ): PdfToImageResultData? {
         lateinit var pngFile: File
