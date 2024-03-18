@@ -28,5 +28,5 @@ interface OnTapListener {
      * @param e MotionEvent that registered as a confirmed single tap
      * @return true if the single tap was handled, false to toggle scroll handle
      */
-    suspend fun onTap(e: MotionEvent?): Boolean
+     fun onTap(e: MotionEvent?): Boolean
 }

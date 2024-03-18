@@ -26,7 +26,6 @@ import android.view.ScaleGestureDetector.OnScaleGestureListener
 import android.view.View
 import android.view.View.OnTouchListener
 import com.github.barteksc.pdfviewer.util.Constants.Pinch
-import kotlinx.coroutines.runBlocking
 
 /**
  * This Manager takes care of moving the PDFView,
@@ -62,7 +61,6 @@ internal class DragPinchManager(
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        return runBlocking {
             val onTapHandled = pdfView.callbacks.callOnTap(e)
             if (!onTapHandled) {
                 val ps = pdfView.scrollHandle
@@ -75,8 +73,7 @@ internal class DragPinchManager(
                 }
             }
             pdfView.performClick()
-            return@runBlocking true
-        }
+            return true
     }
 
     private fun startPageFling(

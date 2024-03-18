@@ -1605,8 +1605,8 @@ public class PDFView extends RelativeLayout {
             return this;
         }
 
-        public Configurator onTap(Uri uri, OnAnnotationPressListener listener) {
-            this.onTapListener = new CustomOnTapListener(PDFView.this, uri, listener);
+        public Configurator onTap(Uri uri, Context context, OnAnnotationPressListener listener) {
+            this.onTapListener = new CustomOnTapListener(PDFView.this, uri, context, listener);
             return this;
         }
 
