@@ -75,38 +75,38 @@ object PdfUtil {
     @JvmStatic
     suspend fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
         try {
-         return   withContext(Dispatchers.IO){
-               if (filePath.isEmpty()) throw Exception("Input file is empty")
-               val file = File(filePath)
-               if (!file.exists()) throw Exception("Input file does not exist")
+            return withContext(Dispatchers.IO) {
+                if (filePath.isEmpty()) throw Exception("Input file is empty")
+                val file = File(filePath)
+                if (!file.exists()) throw Exception("Input file does not exist")
 
-               val inputStream: InputStream = FileInputStream(file)
-               val reader = PdfReader(inputStream)
-               val annotationsList = mutableListOf<Annotation>()
+                val inputStream: InputStream = FileInputStream(file)
+                val reader = PdfReader(inputStream)
+                val annotationsList = mutableListOf<Annotation>()
 
-               // read annotations for the given page
-               val page: PdfDictionary = reader.getPageN(pageNum)
-               val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-               if (annots == null) {
-                   logError(TAG, "Annotations array for page $pageNum is null")
-               } else {
-                   logDebug(TAG, "Annotations array for page $pageNum: $annots")
-                   // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
-                   val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
-                   for (i in 0 until annots.size()) {
-                       val annotation: PdfDictionary = annots.getAsDict(i)
-                       // Extract extras
-                       // coordinates of 2 corners of the rectangle of the annotation
-                       val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
-                       // type of annotation
-                       val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
-                       if (subtype != null && subtype in annotationsWithRect) {
-                           if (rectArray != null && rectArray.size() == 4) {
-                               // bottom left corner's coordinates
-                               val llx: Float = rectArray.getAsNumber(0).floatValue()
-                               val lly: Float = rectArray.getAsNumber(1).floatValue()
-                               // top right corner's coordinates
-                               val urx: Float = rectArray.getAsNumber(2).floatValue()
+                // read annotations for the given page
+                val page: PdfDictionary = reader.getPageN(pageNum)
+                val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
+                if (annots == null) {
+                    logError(TAG, "Annotations array for page $pageNum is null")
+                } else {
+                    logDebug(TAG, "Annotations array for page $pageNum: $annots")
+                    // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
+                    val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
+                    for (i in 0 until annots.size()) {
+                        val annotation: PdfDictionary = annots.getAsDict(i)
+                        // Extract extras
+                        // coordinates of 2 corners of the rectangle of the annotation
+                        val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
+                        // type of annotation
+                        val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
+                        if (subtype != null && subtype in annotationsWithRect) {
+                            if (rectArray != null && rectArray.size() == 4) {
+                                // bottom left corner's coordinates
+                                val llx: Float = rectArray.getAsNumber(0).floatValue()
+                                val lly: Float = rectArray.getAsNumber(1).floatValue()
+                                // top right corner's coordinates
+                                val urx: Float = rectArray.getAsNumber(2).floatValue()
                                val ury: Float = rectArray.getAsNumber(3).floatValue()
 
                                val extractedAnnotation: Annotation? = when (subtype) {
