@@ -20,8 +20,10 @@ package com.github.barteksc.pdfviewer.link
  */
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.view.MotionEvent
+import androidx.annotation.RequiresApi
 import androidx.core.net.toFile
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -34,6 +36,7 @@ import com.github.barteksc.pdfviewer.util.logInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.CompletableFuture
 
 class CustomOnTapListener(
     private val pdfView: PDFView,
@@ -42,14 +45,17 @@ class CustomOnTapListener(
     private val listener: OnAnnotationPressListener,
 ) : OnTapListener {
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onTap(e: MotionEvent?): Boolean {
-        return try {
-            if (e == null) {
-                logInfo(TAG, "Motion event is null")
-                false
-            } else {
-                val act = (context as? FragmentActivity)
-                act?.lifecycleScope?.launch {
+        if (e == null) {
+            logInfo(TAG, "Motion event is null")
+            return false
+        } else {
+            val act = (context as? FragmentActivity)
+            val resultFuture = CompletableFuture<Boolean>()
+
+            act?.lifecycleScope?.launch {
+                try {
                     withContext(Dispatchers.IO) {
                         val pdfFilePath = pdfUri.toFile().absolutePath
                         Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
@@ -60,16 +66,21 @@ class CustomOnTapListener(
                         val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                             checkIfPointIsInsideAnnotation(pdfPoint, annotation)
                         }
-                        if (clickedAnnotation?.relations?.documentation?.isNotEmpty() == true) {
-                            listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                        val annotationPressed = clickedAnnotation?.relations?.documentation?.getOrNull(0)
+                        if (annotationPressed != null) {
+                            listener.onAnnotationPressed(annotationPressed)
+                            resultFuture.complete(true)
+                        } else {
+                            resultFuture.complete(false)
                         }
                     }
+                } catch (e: IllegalArgumentException) {
+                    logInfo(TAG, "Extracting filepath for content uri is not possible")
+                    resultFuture.complete(false)
                 }
-                return false
             }
-        } catch (e: IllegalArgumentException) {
-            logInfo(TAG, "Extracting filepath for content uri is not possible")
-            false
+
+            return resultFuture.get()
         }
     }
 
