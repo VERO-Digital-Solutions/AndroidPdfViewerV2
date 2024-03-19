@@ -29,9 +29,6 @@ dependencies {
 
     // For moving the IO operations to background thread
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1'
-
-    // For FragmentActivity
-    implementation 'androidx.fragment:fragment-ktx:1.6.2'
 }
 
 task androidSourcesJar(type: Jar) {
