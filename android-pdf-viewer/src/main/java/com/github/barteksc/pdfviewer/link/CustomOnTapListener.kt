@@ -18,13 +18,10 @@ package com.github.barteksc.pdfviewer.link
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.MotionEvent
 import androidx.core.net.toFile
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
@@ -32,14 +29,12 @@ import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.listener.OnTapListener
 import com.github.barteksc.pdfviewer.util.logInfo
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 
 class CustomOnTapListener(
     private val pdfView: PDFView,
     private val pdfUri: Uri,
-    private val context: Context,
-    private val listener: OnAnnotationPressListener,
+    private val listener: OnAnnotationPressListener
 ) : OnTapListener {
 
     override fun onTap(e: MotionEvent?): Boolean {
@@ -48,24 +43,22 @@ class CustomOnTapListener(
                 logInfo(TAG, "Motion event is null")
                 false
             } else {
-                val act = (context as? FragmentActivity)
-                act?.lifecycleScope?.launch {
-                    withContext(Dispatchers.IO) {
-                        val pdfFilePath = pdfUri.toFile().absolutePath
-                        Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
-                        val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(e.x, e.y)
-                        Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
-                        val extractedAnnotations =
-                            PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-                        val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
-                            checkIfPointIsInsideAnnotation(pdfPoint, annotation)
-                        }
-                        if (clickedAnnotation?.relations?.documentation?.isNotEmpty() == true) {
-                            listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
-                        }
-                    }
+                val pdfFilePath = pdfUri.toFile().absolutePath
+                Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
+                val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(e.x, e.y)
+                Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
+                val extractedAnnotations = runBlocking(Dispatchers.IO) {
+                    PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
                 }
-                return false
+                val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
+                    checkIfPointIsInsideAnnotation(pdfPoint, annotation)
+                } ?: return false
+                if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+                    listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                    true
+                } else {
+                    false
+                }
             }
         } catch (e: IllegalArgumentException) {
             logInfo(TAG, "Extracting filepath for content uri is not possible")
