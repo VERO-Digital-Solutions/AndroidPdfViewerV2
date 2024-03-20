@@ -59,13 +59,15 @@ object PdfUtil {
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
     suspend fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
-        AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
-        val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
-        if (resultData == null) {
-            logError(TAG, "Couldn't draw annotations")
-        } else {
-            val shapes = fromJson(jsonShapes)
-            drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
+        withContext(Dispatchers.IO) {
+            AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
+            val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
+            if (resultData == null) {
+                logError(TAG, "Couldn't draw annotations")
+            } else {
+                val shapes = fromJson(jsonShapes)
+                drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
+            }
         }
     }
 
