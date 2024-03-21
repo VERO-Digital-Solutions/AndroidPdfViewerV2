@@ -101,7 +101,7 @@ class Callbacks {
         }
     }
 
-    fun callOnTap(event: MotionEvent?): Boolean {
+    fun callOnTap(event: MotionEvent): Boolean {
         return onTapListener != null && onTapListener!!.onTap(event)
     }
 

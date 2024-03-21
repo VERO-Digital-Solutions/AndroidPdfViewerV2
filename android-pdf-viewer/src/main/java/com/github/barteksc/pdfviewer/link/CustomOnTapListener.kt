@@ -37,28 +37,23 @@ class CustomOnTapListener(
     private val listener: OnAnnotationPressListener
 ) : OnTapListener {
 
-    override fun onTap(e: MotionEvent?): Boolean {
+    override fun onTap(e: MotionEvent): Boolean {
         return try {
-            if (e == null) {
-                logInfo(TAG, "Motion event is null")
-                false
+            val pdfFilePath = pdfUri.toFile().absolutePath
+            Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
+            val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(e.x, e.y)
+            Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
+            val extractedAnnotations = runBlocking(Dispatchers.IO) {
+                PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
+            }
+            val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
+                checkIfPointIsInsideAnnotation(pdfPoint, annotation)
+            } ?: return false
+            if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+                listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                true
             } else {
-                val pdfFilePath = pdfUri.toFile().absolutePath
-                Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
-                val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(e.x, e.y)
-                Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
-                val extractedAnnotations = runBlocking(Dispatchers.IO) {
-                    PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
-                }
-                val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
-                    checkIfPointIsInsideAnnotation(pdfPoint, annotation)
-                } ?: return false
-                if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
-                    listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
-                    true
-                } else {
-                    false
-                }
+                false
             }
         } catch (e: IllegalArgumentException) {
             logInfo(TAG, "Extracting filepath for content uri is not possible")
