@@ -8,7 +8,10 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFr
 
 /**  Points are in the order: topLeft, topRight, bottomRight, bottomLeft */
 data class Annotation(
-    val type: String, val points: List<PointF>, val relations: Relations? = null
+    val type: String,
+    val points: List<PointF>,
+    val relations: Relations? = null,
+    val uri: String? = null
 ){
     fun toRectangleShape(pageHeight: Int): Rectangle {
         // rectangle's corners  mapped to image space

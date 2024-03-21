@@ -89,7 +89,7 @@ object PdfUtil {
             } else {
                 logDebug(TAG, "Annotations array for page $pageNum: $annots")
                 // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
-                val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
+                val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE, PdfName.LINK)
                 for (i in 0 until annots.size()) {
                     val annotation: PdfDictionary = annots.getAsDict(i)
                     // Extract extras
@@ -114,6 +114,10 @@ object PdfUtil {
                                     urx,
                                     ury,
                                 )
+
+                                PdfName.LINK -> {
+                                    getExtractedLinkAnnotation(annotation, llx, lly, urx, ury)
+                                }
 
                                 else -> null
                             }
@@ -161,6 +165,38 @@ object PdfUtil {
             relations = getExtractedRelations(relationsArray)
         )
     }
+
+    private fun getExtractedLinkAnnotation(
+        annotation: PdfDictionary,
+        llx: Float,
+        lly: Float,
+        urx: Float,
+        ury: Float
+    ): Annotation {
+        val xBottomLeftPoint = llx
+        val yBottomLeftPoint = lly
+        val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
+        val xTopRightPoint = urx
+        val yTopRightPoint = ury
+        val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
+
+        // from the extracted coordinates, calculate the rest
+        val linkAnnotationPoints = generateRectCoordinates(bottomLeftPoint, topRightPoint)
+
+        // extract URI from the action dictionary
+        val uriAction: PdfDictionary? = annotation.getAsDict(PdfName.A)
+        var uri: String? = null
+        if (uriAction != null) {
+            uri = uriAction.get(PdfName.URI)?.toString()
+        }
+
+        return Annotation(
+            AnnotationType.LINK.name,
+            linkAnnotationPoints,
+            uri = uri
+        )
+    }
+
 
     private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
         val documentations = mutableListOf<Documentation>()

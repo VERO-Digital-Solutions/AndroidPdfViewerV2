@@ -18,11 +18,14 @@ package com.github.barteksc.pdfviewer.link
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.view.MotionEvent
 import androidx.core.net.toFile
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
@@ -45,7 +48,10 @@ class CustomOnTapListener(
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
             } ?: return false
-            if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+            if (clickedAnnotation.type == AnnotationType.LINK.name) {
+                handleUri(clickedAnnotation.uri!!)
+                true
+            } else if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
                 listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
                 true
             } else {
@@ -59,5 +65,19 @@ class CustomOnTapListener(
 
     companion object {
         private val TAG = CustomOnTapListener::class.java.simpleName
+    }
+
+    private fun handleUri(uri: String) {
+        Log.i(TAG, "URI: $uri")
+
+        val parsedUri = Uri.parse(uri)
+        val intent = Intent(Intent.ACTION_VIEW, parsedUri)
+        val context: Context = pdfView.context
+        logInfo(TAG, "contexts is $context")
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Log.w(TAG, "No activity found for URI: $uri")
+        }
     }
 }
