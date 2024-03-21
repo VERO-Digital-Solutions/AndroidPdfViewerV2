@@ -49,7 +49,7 @@ class CustomOnTapListener(
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
             } ?: return false
             if (clickedAnnotation.type == AnnotationType.LINK.name) {
-                handleUri(clickedAnnotation.uri!!)
+                handleUri(clickedAnnotation.uri)
                 true
             } else if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
                 listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
@@ -67,17 +67,20 @@ class CustomOnTapListener(
         private val TAG = CustomOnTapListener::class.java.simpleName
     }
 
-    private fun handleUri(uri: String) {
-        Log.i(TAG, "URI: $uri")
+    private fun handleUri(uri: String?) {
+        val webLink = uri ?: return
+        if (!webLink.startsWith("http")) {
+            Log.w(TAG, "URI $uri is not a web link")
+            return
+        }
 
         val parsedUri = Uri.parse(uri)
         val intent = Intent(Intent.ACTION_VIEW, parsedUri)
         val context: Context = pdfView.context
-        logInfo(TAG, "contexts is $context")
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
-            Log.w(TAG, "No activity found for URI: $uri")
+            Log.w(TAG, "No activity found for URI: $webLink")
         }
     }
 }
