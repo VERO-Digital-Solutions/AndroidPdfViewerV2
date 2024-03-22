@@ -28,6 +28,8 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInside
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
 import com.github.barteksc.pdfviewer.listener.OnTapListener
 import com.github.barteksc.pdfviewer.util.logInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class CustomOnTapListener(
     private val pdfView: PDFView,
@@ -35,13 +37,15 @@ class CustomOnTapListener(
     private val listener: OnAnnotationPressListener
 ) : OnTapListener {
 
-    override fun onTap(event: MotionEvent): Boolean {
+    override fun onTap(e: MotionEvent): Boolean {
         return try {
             val pdfFilePath = pdfUri.toFile().absolutePath
-            Log.i(TAG, "tap event --> X: " + event.x + " | Y: " + event.y)
-            val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(event.x, event.y)
+            Log.i(TAG, "tap event --> X: " + e.x + " | Y: " + e.y)
+            val pdfPoint = pdfView.convertScreenPintsToPdfCoordinates(e.x, e.y)
             Log.i(TAG, "pdfPoint --> X: " + pdfPoint.x + " | Y: " + pdfPoint.y)
-            val extractedAnnotations = PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
+            val extractedAnnotations = runBlocking(Dispatchers.IO) {
+                PdfUtil.getAnnotationsFrom(pdfFilePath, pageNum = 1)
+            }
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
             } ?: return false

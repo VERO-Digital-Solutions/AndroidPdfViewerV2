@@ -26,6 +26,9 @@ dependencies {
     // For deserializing shape classes, converting them to JSON string
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
+
+    // For moving the IO operations to background thread
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.1'
 }
 
 task androidSourcesJar(type: Jar) {
