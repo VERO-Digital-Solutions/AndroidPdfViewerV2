@@ -23,6 +23,7 @@ import com.lowagie.text.pdf.PdfNumber
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfString
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -242,11 +243,13 @@ object PdfUtil {
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
                 val pdfName = extractFileNameFromPath(pdfPath)
-                pngFile = saveBitmapAsPng(
-                    bitmap,
-                    outputDirectory,
-                    "PdfToImage-$pdfName-page-${pageNum + 1}.png"
-                )
+                pngFile = runBlocking {
+                    saveBitmapAsPng(
+                        bitmap,
+                        outputDirectory,
+                        "PdfToImage-$pdfName-page-${pageNum + 1}.png"
+                    )
+                }
 
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
@@ -267,16 +270,18 @@ object PdfUtil {
         return fd
     }
 
-    private fun saveBitmapAsPng(bitmap: Bitmap, directory: String, fileName: String): File {
-        val file = File(directory, fileName)
-        try {
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+    private suspend fun saveBitmapAsPng(bitmap: Bitmap, directory: String, fileName: String): File {
+        return withContext(Dispatchers.IO) {
+            val file = File(directory, fileName)
+            try {
+                FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
+            return@withContext file
         }
-        return file
     }
 
     private fun extractFileNameFromPath(filePath: String): String {
