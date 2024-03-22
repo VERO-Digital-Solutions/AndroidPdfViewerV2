@@ -23,7 +23,6 @@ import com.lowagie.text.pdf.PdfNumber
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfString
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -243,14 +242,11 @@ object PdfUtil {
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
 
                 val pdfName = extractFileNameFromPath(pdfPath)
-                pngFile = runBlocking {
-                    saveBitmapAsPng(
+                pngFile = saveBitmapAsPng(
                         bitmap,
                         outputDirectory,
                         "PdfToImage-$pdfName-page-${pageNum + 1}.png"
                     )
-                }
-
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
                 jsonShapes = shapes.toJson()
