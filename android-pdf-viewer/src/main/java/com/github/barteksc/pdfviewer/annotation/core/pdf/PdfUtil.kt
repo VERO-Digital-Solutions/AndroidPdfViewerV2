@@ -109,30 +109,30 @@ object PdfUtil {
                                 val lly: Float = rectArray.getAsNumber(1).floatValue()
                                 // top right corner's coordinates
                                 val urx: Float = rectArray.getAsNumber(2).floatValue()
-                               val ury: Float = rectArray.getAsNumber(3).floatValue()
+                                val ury: Float = rectArray.getAsNumber(3).floatValue()
 
-                               val extractedAnnotation: Annotation? = when (subtype) {
-                                   PdfName.SQUARE -> getExtractedSquareAnnotation(
-                                       annotation,
-                                       llx,
-                                       lly,
-                                       urx,
-                                       ury,
-                                   )
+                                val extractedAnnotation: Annotation? = when (subtype) {
+                                    PdfName.SQUARE -> getExtractedSquareAnnotation(
+                                        annotation,
+                                        llx,
+                                        lly,
+                                        urx,
+                                        ury,
+                                    )
 
-                                   else -> null
-                               }
-                               if (extractedAnnotation != null) {
-                                   annotationsList.add(extractedAnnotation)
-                               }
-                           }
-                       } else {
-                           logError(TAG, "Annotation is not recognised")
-                       }
-                   }
-               }
-               return@withContext annotationsList
-           }
+                                    else -> null
+                                }
+                                if (extractedAnnotation != null) {
+                                    annotationsList.add(extractedAnnotation)
+                                }
+                            }
+                        } else {
+                            logError(TAG, "Annotation is not recognised")
+                        }
+                    }
+                }
+                return@withContext annotationsList
+            }
 
         } catch (e: Exception) {
             e.message?.let { logError(TAG, it) }
@@ -230,8 +230,7 @@ object PdfUtil {
             logError(TAG, "Couldn't get seek-able file descriptor for $pdfPath")
             return null
         } else {
-            val renderer = PdfRenderer(fd)
-            renderer.use { renderer ->
+            withContext(Dispatchers.IO) { PdfRenderer(fd) }.use { renderer ->
                 // Assuming the pdf will have only 1 page (for now)
                 val pageNum = 0
                 val page = renderer.openPage(pageNum)
@@ -243,10 +242,10 @@ object PdfUtil {
 
                 val pdfName = extractFileNameFromPath(pdfPath)
                 pngFile = saveBitmapAsPng(
-                        bitmap,
-                        outputDirectory,
-                        "PdfToImage-$pdfName-page-${pageNum + 1}.png"
-                    )
+                    bitmap,
+                    outputDirectory,
+                    "PdfToImage-$pdfName-page-${pageNum + 1}.png"
+                )
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
                 jsonShapes = shapes.toJson()
