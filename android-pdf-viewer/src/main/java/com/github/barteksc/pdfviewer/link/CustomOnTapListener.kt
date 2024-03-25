@@ -68,6 +68,7 @@ class CustomOnTapListener(
     }
 
     private fun handleUri(uri: String?) {
+        logInfo(TAG, "URI for tapped link annotation is $uri")
         val webLink = uri ?: return
         if (!webLink.startsWith("http")) {
             Log.w(TAG, "URI $uri is not a web link")

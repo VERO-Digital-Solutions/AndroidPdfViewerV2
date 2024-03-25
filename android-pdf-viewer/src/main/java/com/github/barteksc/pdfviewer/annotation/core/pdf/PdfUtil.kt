@@ -185,7 +185,7 @@ object PdfUtil {
             uri = uriAction.get(PdfName.URI)?.toString()
         }
 
-        return LinkAnnotation(linkAnnotationPoints, uri = uri)
+        return LinkAnnotation(linkAnnotationPoints, uri)
     }
 
 
