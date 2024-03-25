@@ -23,6 +23,8 @@ import com.lowagie.text.pdf.PdfName
 import com.lowagie.text.pdf.PdfNumber
 import com.lowagie.text.pdf.PdfReader
 import com.lowagie.text.pdf.PdfString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -38,7 +40,7 @@ object PdfUtil {
     /** Uses the passed PDF file to create a PNG image from the first page,
      *  maps the PDF annotations to shapes that will be saved as json string */
     @JvmStatic
-    fun getPdfToImageResultData(
+    suspend fun getPdfToImageResultData(
         pdfFilePath: String,
         outputDirectory: String
     ): PdfToImageResultData? {
@@ -57,14 +59,16 @@ object PdfUtil {
 
     /** Maps shapes to annotations and draws them to the given PDF */
     @JvmStatic
-    fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
-        AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
-        val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
-        if (resultData == null) {
-            logError(TAG, "Couldn't draw annotations")
-        } else {
-            val shapes = fromJson(jsonShapes)
-            drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
+    suspend fun drawAnnotations(pdfFile: File, outputDirectory: String, jsonShapes: String) {
+        withContext(Dispatchers.IO) {
+            AnnotationManager.removeAnnotationsFromPdf(pdfFile.path)
+            val resultData = getPdfToImageResultData(pdfFile.path, outputDirectory)
+            if (resultData == null) {
+                logError(TAG, "Couldn't draw annotations")
+            } else {
+                val shapes = fromJson(jsonShapes)
+                drawPngShapesToPdf(pdfFile, resultData.pageHeight, shapes)
+            }
         }
     }
 
@@ -72,15 +76,16 @@ object PdfUtil {
      * In OpenPdf, pages start from 1
      * Page number is always 1 for now */
     @JvmStatic
-    fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
+    suspend fun getAnnotationsFrom(filePath: String, pageNum: Int): List<Annotation> {
         try {
-            if (filePath.isEmpty()) throw Exception("Input file is empty")
-            val file = File(filePath)
-            if (!file.exists()) throw Exception("Input file does not exist")
+            return withContext(Dispatchers.IO) {
+                if (filePath.isEmpty()) throw Exception("Input file is empty")
+                val file = File(filePath)
+                if (!file.exists()) throw Exception("Input file does not exist")
 
-            val inputStream: InputStream = FileInputStream(file)
-            val reader = PdfReader(inputStream)
-            val annotationsList = mutableListOf<Annotation>()
+                val inputStream: InputStream = FileInputStream(file)
+                val reader = PdfReader(inputStream)
+                val annotationsList = mutableListOf<Annotation>()
 
             // read annotations for the given page
             val page: PdfDictionary = reader.getPageN(pageNum)
@@ -122,18 +127,20 @@ object PdfUtil {
                                     yTopRightPoint
                                 )
 
-                                else -> null
+                                    else -> null
+                                }
+                                if (extractedAnnotation != null) {
+                                    annotationsList.add(extractedAnnotation)
+                                }
                             }
-                            if (extractedAnnotation != null) {
-                                annotationsList.add(extractedAnnotation)
-                            }
+                        } else {
+                            logError(TAG, "Annotation is not recognised")
                         }
-                    } else {
-                        logError(TAG, "Annotation is not recognised")
                     }
                 }
+                return@withContext annotationsList
             }
-            return annotationsList
+
         } catch (e: Exception) {
             e.message?.let { logError(TAG, it) }
             e.printStackTrace()
@@ -238,7 +245,7 @@ object PdfUtil {
      *  map PDF annotations to image shapes, save the PNG image to the given output directory
      */
     @JvmStatic
-    private fun convertPdfAnnotationsToPngShapes(
+    private suspend fun convertPdfAnnotationsToPngShapes(
         pdfPath: String, outputDirectory: String
     ): PdfToImageResultData? {
         lateinit var pngFile: File
@@ -250,8 +257,7 @@ object PdfUtil {
             logError(TAG, "Couldn't get seek-able file descriptor for $pdfPath")
             return null
         } else {
-            val renderer = PdfRenderer(fd)
-            renderer.use { renderer ->
+            withContext(Dispatchers.IO) { PdfRenderer(fd) }.use { renderer ->
                 // Assuming the pdf will have only 1 page (for now)
                 val pageNum = 0
                 val page = renderer.openPage(pageNum)
@@ -267,7 +273,6 @@ object PdfUtil {
                     outputDirectory,
                     "PdfToImage-$pdfName-page-${pageNum + 1}.png"
                 )
-
                 val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
                 val shapes = getShapesFor(pdfAnnotations, page.height)
                 jsonShapes = shapes.toJson()
@@ -287,16 +292,18 @@ object PdfUtil {
         return fd
     }
 
-    private fun saveBitmapAsPng(bitmap: Bitmap, directory: String, fileName: String): File {
-        val file = File(directory, fileName)
-        try {
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+    private suspend fun saveBitmapAsPng(bitmap: Bitmap, directory: String, fileName: String): File {
+        return withContext(Dispatchers.IO) {
+            val file = File(directory, fileName)
+            try {
+                FileOutputStream(file).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
+            return@withContext file
         }
-        return file
     }
 
     private fun extractFileNameFromPath(filePath: String): String {
