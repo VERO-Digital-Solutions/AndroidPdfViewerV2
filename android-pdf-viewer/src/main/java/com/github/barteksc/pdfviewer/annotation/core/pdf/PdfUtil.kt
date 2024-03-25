@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor
 import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
+import com.github.barteksc.pdfviewer.annotation.core.annotations.LinkAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
@@ -186,11 +187,7 @@ object PdfUtil {
             uri = uriAction.get(PdfName.URI)?.toString()
         }
 
-        return Annotation(
-            AnnotationType.LINK.name,
-            linkAnnotationPoints,
-            uri = uri
-        )
+        return LinkAnnotation(linkAnnotationPoints, uri = uri)
     }
 
 
