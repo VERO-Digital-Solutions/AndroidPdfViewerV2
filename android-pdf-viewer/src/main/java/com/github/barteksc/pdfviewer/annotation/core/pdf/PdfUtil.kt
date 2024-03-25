@@ -99,24 +99,28 @@ object PdfUtil {
                     val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
                     if (subtype != null && subtype in annotationsWithRect) {
                         if (rectArray != null && rectArray.size() == 4) {
-                            // bottom left corner's coordinates
-                            val llx: Float = rectArray.getAsNumber(0).floatValue()
-                            val lly: Float = rectArray.getAsNumber(1).floatValue()
-                            // top right corner's coordinates
-                            val urx: Float = rectArray.getAsNumber(2).floatValue()
-                            val ury: Float = rectArray.getAsNumber(3).floatValue()
+                            val xBottomLeftPoint: Float = rectArray.getAsNumber(0).floatValue()
+                            val yBottomLeftPoint: Float = rectArray.getAsNumber(1).floatValue()
+                            val xTopRightPoint: Float = rectArray.getAsNumber(2).floatValue()
+                            val yTopRightPoint: Float = rectArray.getAsNumber(3).floatValue()
 
                             val extractedAnnotation: Annotation? = when (subtype) {
                                 PdfName.SQUARE -> getExtractedSquareAnnotation(
                                     annotation,
-                                    llx,
-                                    lly,
-                                    urx,
-                                    ury,
+                                    xBottomLeftPoint,
+                                    yBottomLeftPoint,
+                                    xTopRightPoint,
+                                    yTopRightPoint,
                                 )
 
                                 PdfName.LINK -> {
-                                    getExtractedLinkAnnotation(annotation, llx, lly, urx, ury)
+                                    getExtractedLinkAnnotation(
+                                        annotation,
+                                        xBottomLeftPoint,
+                                        xBottomLeftPoint,
+                                        xTopRightPoint,
+                                        yTopRightPoint
+                                    )
                                 }
 
                                 else -> null
@@ -140,16 +144,12 @@ object PdfUtil {
 
     private fun getExtractedSquareAnnotation(
         annotation: PdfDictionary,
-        llx: Float,
-        lly: Float,
-        urx: Float,
-        ury: Float
+        xBottomLeftPoint: Float,
+        yBottomLeftPoint: Float,
+        xTopRightPoint: Float,
+        yTopRightPoint: Float
     ): Annotation {
-        val xBottomLeftPoint = llx
-        val yBottomLeftPoint = lly
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-        val xTopRightPoint = urx
-        val yTopRightPoint = ury
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
 
         // from the extracted coordinates, calculate the rest
@@ -168,16 +168,12 @@ object PdfUtil {
 
     private fun getExtractedLinkAnnotation(
         annotation: PdfDictionary,
-        llx: Float,
-        lly: Float,
-        urx: Float,
-        ury: Float
+        xBottomLeftPoint: Float,
+        yBottomLeftPoint: Float,
+        xTopRightPoint: Float,
+        yTopRightPoint: Float
     ): Annotation {
-        val xBottomLeftPoint = llx
-        val yBottomLeftPoint = lly
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-        val xTopRightPoint = urx
-        val yTopRightPoint = ury
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
 
         // from the extracted coordinates, calculate the rest
