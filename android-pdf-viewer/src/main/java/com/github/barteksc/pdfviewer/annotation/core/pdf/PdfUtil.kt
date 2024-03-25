@@ -114,15 +114,13 @@ object PdfUtil {
                                     yTopRightPoint,
                                 )
 
-                                PdfName.LINK -> {
-                                    getExtractedLinkAnnotation(
-                                        annotation,
-                                        xBottomLeftPoint,
-                                        xBottomLeftPoint,
-                                        xTopRightPoint,
-                                        yTopRightPoint
-                                    )
-                                }
+                                PdfName.LINK -> getExtractedLinkAnnotation(
+                                    annotation,
+                                    xBottomLeftPoint,
+                                    xBottomLeftPoint,
+                                    xTopRightPoint,
+                                    yTopRightPoint
+                                )
 
                                 else -> null
                             }
