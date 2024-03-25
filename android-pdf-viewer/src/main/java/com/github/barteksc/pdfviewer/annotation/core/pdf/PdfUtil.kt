@@ -195,7 +195,6 @@ object PdfUtil {
         return LinkAnnotation(linkAnnotationPoints, uri)
     }
 
-
     private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
         val documentations = mutableListOf<Documentation>()
         if (relationsArray != null) {
