@@ -10,8 +10,12 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFr
 open class Annotation(
     val type: String,
     open val points: List<PointF>,
+)
+
+class SquareAnnotation(
+    points: List<PointF>,
     val relations: Relations? = null,
-) {
+) : Annotation(type = AnnotationType.SQUARE.name, points) {
     fun toRectangleShape(pageHeight: Int): Rectangle {
         // rectangle's corners  mapped to image space
         val mappedPoints = listOf(
@@ -28,5 +32,5 @@ open class Annotation(
     }
 }
 
-class LinkAnnotation(override val points: List<PointF>, val uri: String?) :
-    Annotation(type = AnnotationType.LINK.name, points, relations = null)
+class LinkAnnotation(points: List<PointF>, val uri: String?) :
+    Annotation(type = AnnotationType.LINK.name, points)

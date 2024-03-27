@@ -9,6 +9,7 @@ import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
 import com.github.barteksc.pdfviewer.annotation.core.annotations.LinkAnnotation
+import com.github.barteksc.pdfviewer.annotation.core.annotations.SquareAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
@@ -154,7 +155,7 @@ object PdfUtil {
         yBottomLeftPoint: Float,
         xTopRightPoint: Float,
         yTopRightPoint: Float
-    ): Annotation {
+    ): SquareAnnotation {
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
 
@@ -165,8 +166,7 @@ object PdfUtil {
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
-        return Annotation(
-            AnnotationType.SQUARE.name,
+        return SquareAnnotation(
             squareAnnotationPoints,
             relations = getExtractedRelations(relationsArray)
         )
@@ -230,8 +230,8 @@ object PdfUtil {
     ): List<Shape> {
         // convert annotation to shape
         val shapes = pdfAnnotations.map { annotation ->
-            when (annotation.type) {
-                AnnotationType.SQUARE.name -> return@map annotation.toRectangleShape(pageHeight)
+            when (annotation) {
+               is SquareAnnotation -> return@map annotation.toRectangleShape(pageHeight)
                 else -> {
                     logError(TAG, "Annotation $annotation is not recognised")
                     return emptyList()
@@ -328,7 +328,7 @@ object PdfUtil {
                 AnnotationType.SQUARE.name -> AnnotationManager.addRectangleAnnotation(
                     annotation.points,
                     pdfFile,
-                    annotation.relations
+                    (annotation as SquareAnnotation).relations
                 )
 
                 else -> logError(TAG, "Annotation $annotation is not recognised")

@@ -26,6 +26,7 @@ import android.view.MotionEvent
 import androidx.core.net.toFile
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.annotation.core.annotations.LinkAnnotation
+import com.github.barteksc.pdfviewer.annotation.core.annotations.SquareAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
@@ -52,14 +53,21 @@ class CustomOnTapListener(
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
             } ?: return false
-            if (clickedAnnotation is LinkAnnotation) {
-                handleUri(clickedAnnotation.uri)
-                true
-            } else if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
-                listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
-                true
-            } else {
-                false
+
+            return when (clickedAnnotation) {
+                is LinkAnnotation -> {
+                    handleUri(clickedAnnotation.uri)
+                    true
+                }
+
+                is SquareAnnotation -> {
+                    if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+                        listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                    }
+                    true
+                }
+
+                else -> false
             }
         } catch (e: IllegalArgumentException) {
             logInfo(TAG, "Extracting filepath for content uri is not possible")
