@@ -5,8 +5,6 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Rectangle.Companion.generateRectangleEdges
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFrom
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 /**  Points are in the order: topLeft, topRight, bottomRight, bottomLeft */
 open class Annotation(
@@ -32,11 +30,3 @@ open class Annotation(
 
 class LinkAnnotation(override val points: List<PointF>, val uri: String?) :
     Annotation(type = AnnotationType.LINK.name, points, relations = null)
-
-@OptIn(ExperimentalContracts::class)
-fun Annotation.isLinkAnnotation() : Boolean {
-    contract {
-        returns(true) implies (this@isLinkAnnotation is LinkAnnotation)
-    }
-    return type == AnnotationType.LINK.name
-}

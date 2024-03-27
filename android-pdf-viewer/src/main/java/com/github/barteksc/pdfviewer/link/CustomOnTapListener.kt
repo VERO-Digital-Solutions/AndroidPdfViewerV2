@@ -25,7 +25,7 @@ import android.util.Log
 import android.view.MotionEvent
 import androidx.core.net.toFile
 import com.github.barteksc.pdfviewer.PDFView
-import com.github.barteksc.pdfviewer.annotation.core.annotations.isLinkAnnotation
+import com.github.barteksc.pdfviewer.annotation.core.annotations.LinkAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.annotation.core.shapes.checkIfPointIsInsideAnnotation
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener
@@ -52,7 +52,7 @@ class CustomOnTapListener(
             val clickedAnnotation = extractedAnnotations.firstOrNull { annotation ->
                 checkIfPointIsInsideAnnotation(pdfPoint, annotation)
             } ?: return false
-            if (clickedAnnotation.isLinkAnnotation()) {
+            if (clickedAnnotation is LinkAnnotation) {
                 handleUri(clickedAnnotation.uri)
                 true
             } else if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {

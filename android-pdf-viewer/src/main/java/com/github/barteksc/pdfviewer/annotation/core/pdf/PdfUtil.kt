@@ -178,7 +178,7 @@ object PdfUtil {
         yBottomLeftPoint: Float,
         xTopRightPoint: Float,
         yTopRightPoint: Float
-    ): Annotation {
+    ): LinkAnnotation? {
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
 
@@ -191,8 +191,9 @@ object PdfUtil {
         if (uriAction != null) {
             uri = uriAction.get(PdfName.URI)?.toString()
         }
-
-        return LinkAnnotation(linkAnnotationPoints, uri)
+        return if (uri != null) {
+            LinkAnnotation(linkAnnotationPoints, uri)
+        } else null
     }
 
     private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
