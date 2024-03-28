@@ -38,6 +38,7 @@ import kotlinx.coroutines.runBlocking
 class CustomOnTapListener(
     private val pdfView: PDFView,
     private val pdfUri: Uri,
+    private val handleAnnotations: Boolean,
     private val listener: OnAnnotationPressListener
 ) : OnTapListener {
 
@@ -61,8 +62,10 @@ class CustomOnTapListener(
                 }
 
                 is SquareAnnotation -> {
-                    if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
-                        listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                    if (handleAnnotations) {
+                        if (clickedAnnotation.relations?.documentation?.isNotEmpty() == true) {
+                            listener.onAnnotationPressed(clickedAnnotation.relations.documentation[0])
+                        }
                     }
                     true
                 }
