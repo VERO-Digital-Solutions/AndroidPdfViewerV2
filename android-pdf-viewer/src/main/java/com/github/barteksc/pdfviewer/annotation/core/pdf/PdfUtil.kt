@@ -8,6 +8,8 @@ import android.os.ParcelFileDescriptor
 import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationManager
 import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
+import com.github.barteksc.pdfviewer.annotation.core.annotations.LinkAnnotation
+import com.github.barteksc.pdfviewer.annotation.core.annotations.SquareAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Relations
 import com.github.barteksc.pdfviewer.annotation.core.shapes.Shape
@@ -86,39 +88,45 @@ object PdfUtil {
                 val reader = PdfReader(inputStream)
                 val annotationsList = mutableListOf<Annotation>()
 
-                // read annotations for the given page
-                val page: PdfDictionary = reader.getPageN(pageNum)
-                val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
-                if (annots == null) {
-                    logError(TAG, "Annotations array for page $pageNum is null")
-                } else {
-                    logDebug(TAG, "Annotations array for page $pageNum: $annots")
-                    // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
-                    val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE)
-                    for (i in 0 until annots.size()) {
-                        val annotation: PdfDictionary = annots.getAsDict(i)
-                        // Extract extras
-                        // coordinates of 2 corners of the rectangle of the annotation
-                        val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
-                        // type of annotation
-                        val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
-                        if (subtype != null && subtype in annotationsWithRect) {
-                            if (rectArray != null && rectArray.size() == 4) {
-                                // bottom left corner's coordinates
-                                val llx: Float = rectArray.getAsNumber(0).floatValue()
-                                val lly: Float = rectArray.getAsNumber(1).floatValue()
-                                // top right corner's coordinates
-                                val urx: Float = rectArray.getAsNumber(2).floatValue()
-                                val ury: Float = rectArray.getAsNumber(3).floatValue()
+            // read annotations for the given page
+            val page: PdfDictionary = reader.getPageN(pageNum)
+            val annots: PdfArray? = page.getAsArray(PdfName.ANNOTS)
+            if (annots == null) {
+                logError(TAG, "Annotations array for page $pageNum is null")
+            } else {
+                logDebug(TAG, "Annotations array for page $pageNum: $annots")
+                // Annotations that have a Rectangle (com/lowagie/text/Rectangle.java)
+                val annotationsWithRect = listOf<PdfName>(PdfName.SQUARE, PdfName.LINK)
+                for (i in 0 until annots.size()) {
+                    val annotation: PdfDictionary = annots.getAsDict(i)
+                    // Extract extras
+                    // coordinates of 2 corners of the rectangle of the annotation
+                    val rectArray: PdfArray? = annotation.getAsArray(PdfName.RECT)
+                    // type of annotation
+                    val subtype: PdfName? = annotation.getAsName(PdfName.SUBTYPE)
+                    if (subtype != null && subtype in annotationsWithRect) {
+                        if (rectArray != null && rectArray.size() == 4) {
+                            val xBottomLeftPoint: Float = rectArray.getAsNumber(0).floatValue()
+                            val yBottomLeftPoint: Float = rectArray.getAsNumber(1).floatValue()
+                            val xTopRightPoint: Float = rectArray.getAsNumber(2).floatValue()
+                            val yTopRightPoint: Float = rectArray.getAsNumber(3).floatValue()
 
-                                val extractedAnnotation: Annotation? = when (subtype) {
-                                    PdfName.SQUARE -> getExtractedSquareAnnotation(
-                                        annotation,
-                                        llx,
-                                        lly,
-                                        urx,
-                                        ury,
-                                    )
+                            val extractedAnnotation: Annotation? = when (subtype) {
+                                PdfName.SQUARE -> getExtractedSquareAnnotation(
+                                    annotation,
+                                    xBottomLeftPoint,
+                                    yBottomLeftPoint,
+                                    xTopRightPoint,
+                                    yTopRightPoint,
+                                )
+
+                                PdfName.LINK -> getExtractedLinkAnnotation(
+                                    annotation,
+                                    xBottomLeftPoint,
+                                    xBottomLeftPoint,
+                                    xTopRightPoint,
+                                    yTopRightPoint
+                                )
 
                                     else -> null
                                 }
@@ -143,16 +151,12 @@ object PdfUtil {
 
     private fun getExtractedSquareAnnotation(
         annotation: PdfDictionary,
-        llx: Float,
-        lly: Float,
-        urx: Float,
-        ury: Float
-    ): Annotation {
-        val xBottomLeftPoint = llx
-        val yBottomLeftPoint = lly
+        xBottomLeftPoint: Float,
+        yBottomLeftPoint: Float,
+        xTopRightPoint: Float,
+        yTopRightPoint: Float
+    ): SquareAnnotation {
         val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
-        val xTopRightPoint = urx
-        val yTopRightPoint = ury
         val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
 
         // from the extracted coordinates, calculate the rest
@@ -162,11 +166,34 @@ object PdfUtil {
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
-        return Annotation(
-            AnnotationType.SQUARE.name,
+        return SquareAnnotation(
             squareAnnotationPoints,
             relations = getExtractedRelations(relationsArray)
         )
+    }
+
+    private fun getExtractedLinkAnnotation(
+        annotation: PdfDictionary,
+        xBottomLeftPoint: Float,
+        yBottomLeftPoint: Float,
+        xTopRightPoint: Float,
+        yTopRightPoint: Float
+    ): LinkAnnotation? {
+        val bottomLeftPoint = PointF(xBottomLeftPoint, yBottomLeftPoint)
+        val topRightPoint = PointF(xTopRightPoint, yTopRightPoint)
+
+        // from the extracted coordinates, calculate the rest
+        val linkAnnotationPoints = generateRectCoordinates(bottomLeftPoint, topRightPoint)
+
+        // extract URI from the action dictionary
+        val uriAction: PdfDictionary? = annotation.getAsDict(PdfName.A)
+        var uri: String? = null
+        if (uriAction != null) {
+            uri = uriAction.get(PdfName.URI)?.toString()
+        }
+        return if (uri != null) {
+            LinkAnnotation(linkAnnotationPoints, uri)
+        } else null
     }
 
     private fun getExtractedRelations(relationsArray: PdfArray?): Relations? {
@@ -203,8 +230,8 @@ object PdfUtil {
     ): List<Shape> {
         // convert annotation to shape
         val shapes = pdfAnnotations.map { annotation ->
-            when (annotation.type) {
-                AnnotationType.SQUARE.name -> return@map annotation.toRectangleShape(pageHeight)
+            when (annotation) {
+               is SquareAnnotation -> return@map annotation.toRectangleShape(pageHeight)
                 else -> {
                     logError(TAG, "Annotation $annotation is not recognised")
                     return emptyList()
@@ -301,7 +328,7 @@ object PdfUtil {
                 AnnotationType.SQUARE.name -> AnnotationManager.addRectangleAnnotation(
                     annotation.points,
                     pdfFile,
-                    annotation.relations
+                    (annotation as SquareAnnotation).relations
                 )
 
                 else -> logError(TAG, "Annotation $annotation is not recognised")

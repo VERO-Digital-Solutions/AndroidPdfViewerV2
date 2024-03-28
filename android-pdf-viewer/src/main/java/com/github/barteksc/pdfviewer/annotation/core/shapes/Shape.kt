@@ -2,7 +2,7 @@ package com.github.barteksc.pdfviewer.annotation.core.shapes
 
 import android.graphics.PointF
 import com.github.barteksc.pdfviewer.annotation.core.annotations.Annotation
-import com.github.barteksc.pdfviewer.annotation.core.annotations.AnnotationType
+import com.github.barteksc.pdfviewer.annotation.core.annotations.SquareAnnotation
 import com.github.barteksc.pdfviewer.annotation.core.pdf.PdfUtil
 import com.github.barteksc.pdfviewer.util.logError
 import com.github.salomonbrys.kotson.jsonNull
@@ -23,17 +23,16 @@ open class Shape(
     }
 
     fun toAnnotationOrNull(pageHeight: Int): Annotation? {
-        fun toShapeAnnotation(type: AnnotationType, pageHeight: Int): Annotation {
+        fun toSquareAnnotation(pageHeight: Int): Annotation {
             val points = points.map { it.convertCoordinatesFrom(pageHeight) }
-            return Annotation(
-                type = type.name,
+            return SquareAnnotation(
                 points = points,
                 relations = relations
             )
         }
 
         return when (this.type) {
-            ShapeType.RECTANGLE.name -> toShapeAnnotation(AnnotationType.SQUARE, pageHeight)
+            ShapeType.RECTANGLE.name -> toSquareAnnotation(pageHeight)
             else -> {
                 logError(TAG, "Couldn't parse shape with type $type to annotation")
                 null

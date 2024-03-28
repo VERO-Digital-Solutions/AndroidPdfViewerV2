@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.github.barteksc.pdfviewer"> </manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.github.barteksc.pdfviewer">
+
+    <queries>
+        <!-- Open websites -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        </intent>
+    </queries>
+</manifest>
