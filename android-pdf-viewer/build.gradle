@@ -42,7 +42,7 @@ afterEvaluate {
             release(MavenPublication) {
                 setGroupId 'com.github.VERO-Digital-Solutions'
                 setArtifactId 'AndroidPdfViewerV2'
-                version '1.0.0'
+                version '1.0.1'
                 artifact androidSourcesJar
                 artifact bundleReleaseAar
                 // Add dependencies to the POM file
