@@ -219,7 +219,8 @@ object PdfUtil {
         } else {
             return null
         }
-        return Relations(documentations)
+        val uniqueDocumentations = documentations.toSet()
+        return Relations(uniqueDocumentations.toList())
     }
 
     /** Map annotations to shapes,
