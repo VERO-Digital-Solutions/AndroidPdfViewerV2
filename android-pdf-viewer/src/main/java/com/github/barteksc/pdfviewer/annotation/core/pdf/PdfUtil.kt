@@ -207,11 +207,11 @@ object PdfUtil {
                 val documentId: PdfString? =
                     documentationDict.getAsString(PdfName("documentId"))
 
-                if (schemaId != null && documentId != null) {
+                if (schemaId != null) {
                     documentations.add(
                         Documentation(
                             schemaId.intValue().toLong(),
-                            documentId.toString()
+                            documentId.toString().takeIf { it.isNotEmpty() }
                         )
                     )
                 }
