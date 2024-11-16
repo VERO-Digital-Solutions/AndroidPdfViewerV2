@@ -30,7 +30,8 @@ object AnnotationManager {
     fun addRectangleAnnotation(
         rectCorners: List<PointF>,
         file: File,
-        relations: Relations? = null
+        relations: Relations? = null,
+        colorHex: String,
     ): Boolean {
         var isAdded = false
         try {
@@ -70,7 +71,8 @@ object AnnotationManager {
                 relationsArray.add(documentationDict)
             }
             rectAnnotation.apply {
-                setColor(Color.BLUE)
+                val color = parseHexColor(colorHex)
+                setColor(color)
                 put(PdfName("relations"), relationsArray)
             }
 
@@ -94,6 +96,26 @@ object AnnotationManager {
             e.printStackTrace()
         }
         return isAdded
+    }
+
+    private fun parseHexColor(hexWithPrefix: String): Color {
+        val hex = hexWithPrefix.removePrefix("#")
+        return if (hex.length == 8) {
+            // Handle #AARRGGBB format
+            val alpha = hex.substring(0, 2).toInt(16)
+            val red = hex.substring(2, 4).toInt(16)
+            val green = hex.substring(4, 6).toInt(16)
+            val blue = hex.substring(6, 8).toInt(16)
+            Color(red, green, blue, alpha)
+        } else if (hex.length == 6) {
+            // Handle #RRGGBB format
+            val red = hex.substring(0, 2).toInt(16)
+            val green = hex.substring(2, 4).toInt(16)
+            val blue = hex.substring(4, 6).toInt(16)
+            Color(red, green, blue)
+        } else {
+            throw IllegalArgumentException("Invalid color format")
+        }
     }
 
     /** Removes all annotations from a given PDF file */

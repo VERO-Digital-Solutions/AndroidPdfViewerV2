@@ -14,7 +14,8 @@ data class Rectangle(
     override val type: String = ShapeType.RECTANGLE.name,
     override val points: List<PointF> = emptyList(),
     override val edges: List<Edge> = emptyList(),
-    override val relations: Relations? = null
+    override val relations: Relations? = null,
+    override val colorHex: String
     ) : Shape(type, points) {
     companion object {
         fun generateRectangleEdges(points: List<PointF>): List<Edge> {
@@ -54,6 +55,7 @@ class ShapeTypeAdapter : JsonSerializer<Shape>, JsonDeserializer<Shape> {
             "relations",
             context?.serialize(src?.relations, object : TypeToken<Relations>() {}.type)
         )
+        jsonObject.addProperty("color", src?.colorHex)
         return jsonObject
     }
 
@@ -76,6 +78,7 @@ class ShapeTypeAdapter : JsonSerializer<Shape>, JsonDeserializer<Shape> {
             jsonObject?.get("relations"),
             object : TypeToken<Relations>() {}.type
         )
-        return Shape(type, corners, relations, edges)
+        val colorHex = jsonObject?.get("color")?.asString ?: ""
+        return Shape(type, corners, relations, edges, colorHex)
     }
 }

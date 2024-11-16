@@ -34,6 +34,7 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.properties.Delegates
 
+
 object PdfUtil {
 
     private val TAG: String = PdfUtil.javaClass.simpleName
@@ -166,10 +167,36 @@ object PdfUtil {
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
+        val colorHex: String = getExtractedColor(annotation)
+
         return SquareAnnotation(
             squareAnnotationPoints,
-            relations = getExtractedRelations(relationsArray)
+            relations = getExtractedRelations(relationsArray),
+            colorHex
         )
+    }
+    /** Extracts the color from annotation and returns it as a hex string */
+    private fun getExtractedColor(annotation: PdfDictionary): String {
+        // Color array - rgb
+        val colorArray = annotation.getAsArray(PdfName.C)
+        if (colorArray.size() == 3) {
+            // Extract RGB components (values between 0.0 and 1.0)
+            val red = colorArray.getAsNumber(0).floatValue()
+            val green = colorArray.getAsNumber(1).floatValue()
+            val blue = colorArray.getAsNumber(2).floatValue()
+
+            // Convert to 0-255 range
+            val r = (red * 255).toInt()
+            val g = (green * 255).toInt()
+            val b = (blue * 255).toInt()
+
+            // Hardcode the alpha value as FF (fully opaque)
+            val alpha = 255
+
+            // Return the color in hex format
+            return "#%02X%02X%02X%02X".format(alpha, r, g, b)
+        }
+        return  "" // No color set
     }
 
     private fun getExtractedLinkAnnotation(
@@ -328,7 +355,8 @@ object PdfUtil {
                 AnnotationType.SQUARE.name -> AnnotationManager.addRectangleAnnotation(
                     annotation.points,
                     pdfFile,
-                    (annotation as SquareAnnotation).relations
+                    (annotation as SquareAnnotation).relations,
+                    annotation.colorHex
                 )
 
                 else -> logError(TAG, "Annotation $annotation is not recognised")
