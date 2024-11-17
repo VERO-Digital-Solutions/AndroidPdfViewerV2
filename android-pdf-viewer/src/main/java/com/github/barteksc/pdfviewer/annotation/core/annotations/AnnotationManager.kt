@@ -71,7 +71,7 @@ object AnnotationManager {
                 relationsArray.add(documentationDict)
             }
             rectAnnotation.apply {
-                val color = parseHexColor(colorHex)
+                val color: Color = parseHexColor(colorHex)
                 setColor(color)
                 put(PdfName("relations"), relationsArray)
             }
@@ -100,21 +100,25 @@ object AnnotationManager {
 
     private fun parseHexColor(hexWithPrefix: String): Color {
         val hex = hexWithPrefix.removePrefix("#")
-        return if (hex.length == 8) {
-            // Handle #AARRGGBB format
-            val alpha = hex.substring(0, 2).toInt(16)
-            val red = hex.substring(2, 4).toInt(16)
-            val green = hex.substring(4, 6).toInt(16)
-            val blue = hex.substring(6, 8).toInt(16)
-            Color(red, green, blue, alpha)
-        } else if (hex.length == 6) {
-            // Handle #RRGGBB format
-            val red = hex.substring(0, 2).toInt(16)
-            val green = hex.substring(2, 4).toInt(16)
-            val blue = hex.substring(4, 6).toInt(16)
-            Color(red, green, blue)
-        } else {
-            throw IllegalArgumentException("Invalid color format")
+        return when (hex.length) {
+            8 -> {
+                // Handle #AARRGGBB format
+                val alpha = hex.substring(0, 2).toInt(16)
+                val red = hex.substring(2, 4).toInt(16)
+                val green = hex.substring(4, 6).toInt(16)
+                val blue = hex.substring(6, 8).toInt(16)
+                Color(red, green, blue, alpha)
+            }
+            6 -> {
+                // Handle #RRGGBB format
+                val red = hex.substring(0, 2).toInt(16)
+                val green = hex.substring(2, 4).toInt(16)
+                val blue = hex.substring(4, 6).toInt(16)
+                Color(red, green, blue)
+            }
+            else -> {
+                throw IllegalArgumentException("Invalid color format")
+            }
         }
     }
 

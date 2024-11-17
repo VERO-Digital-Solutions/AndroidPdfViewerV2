@@ -34,7 +34,6 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.properties.Delegates
 
-
 object PdfUtil {
 
     private val TAG: String = PdfUtil.javaClass.simpleName
@@ -196,7 +195,7 @@ object PdfUtil {
             // Return the color in hex format
             return "#%02X%02X%02X%02X".format(alpha, r, g, b)
         }
-        return  "" // No color set
+        return  ""
     }
 
     private fun getExtractedLinkAnnotation(

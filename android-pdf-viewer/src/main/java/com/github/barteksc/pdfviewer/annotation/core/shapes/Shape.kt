@@ -17,7 +17,7 @@ open class Shape(
     @Transient open val points: List<PointF> = emptyList(),
     open val relations: Relations? = null,
     open val edges: List<Edge> = emptyList(),
-    open val colorHex: String = ""
+    open val colorHex: String = "",
 ) {
     companion object {
         val TAG: String = PdfUtil.javaClass.simpleName
@@ -29,7 +29,7 @@ open class Shape(
             return SquareAnnotation(
                 points = points,
                 relations = relations,
-                colorHex = colorHex
+                colorHex = colorHex,
             )
         }
 
@@ -70,7 +70,7 @@ open class Shape(
             )
         }.toJsonArray(),
         "relations" to gson.toJsonTree(relations),
-        "color" to colorHex
+        "color" to colorHex,
     )
 }
 

@@ -15,7 +15,7 @@ data class Rectangle(
     override val points: List<PointF> = emptyList(),
     override val edges: List<Edge> = emptyList(),
     override val relations: Relations? = null,
-    override val colorHex: String
+    override val colorHex: String,
     ) : Shape(type, points) {
     companion object {
         fun generateRectangleEdges(points: List<PointF>): List<Edge> {

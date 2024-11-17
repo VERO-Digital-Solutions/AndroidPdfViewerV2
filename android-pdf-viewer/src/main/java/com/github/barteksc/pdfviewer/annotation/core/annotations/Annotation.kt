@@ -10,13 +10,13 @@ import com.github.barteksc.pdfviewer.annotation.core.shapes.convertCoordinatesFr
 open class Annotation(
     val type: String,
     open val points: List<PointF>,
-    open val colorHex: String = ""
+    open val colorHex: String = "",
 )
 
 class SquareAnnotation(
     points: List<PointF>,
     val relations: Relations? = null,
-    override val colorHex: String
+    override val colorHex: String,
 ) : Annotation(type = AnnotationType.SQUARE.name, points, colorHex) {
     fun toRectangleShape(pageHeight: Int): Rectangle {
         // rectangle's corners  mapped to image space
@@ -34,7 +34,7 @@ class SquareAnnotation(
             points = mappedPoints,
             edges = rectangleShapeEdges,
             relations = relations,
-            colorHex = colorHex
+            colorHex = colorHex,
         )
     }
 }
