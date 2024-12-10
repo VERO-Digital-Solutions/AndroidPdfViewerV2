@@ -102,10 +102,12 @@ object AnnotationManager {
     private fun convertFromColorHexToColor(hexWithPrefix: String): Color {
         val hex = hexWithPrefix.removePrefix("#")
         val numberSystemBase = 16
+        // AARRGGBB format's length
+        val aarrggbbLength = 8
         return when (hex.length) {
-            8 -> {
+            aarrggbbLength -> {
                 /** Start and end indices for #AARRGGBB format
-                Skip indices [0, 1] because [PdfColor] doesn't store alpha */
+                Skip indices [0, 1] because [com.lowagie.text.pdf.PdfColor] doesn't store alpha */
                 val redStartIndex = 2
                 val redEndIndex = 4
                 val greenStartIndex = 4
@@ -118,20 +120,6 @@ object AnnotationManager {
                 val blue = hex.substring(blueStartIndex, blueEndIndex).toInt(numberSystemBase)
                 Color(red, green, blue)
             }
-//            6 -> {
-//                // Start and end indices for #RRGGBB format
-//                val redStartIndex = 0
-//                val redEndIndex = 2
-//                val greenStartIndex = 2
-//                val greenEndIndex = 4
-//                val blueStartIndex = 4
-//                val blueEndIndex = 6
-//
-//                val red = hex.substring(redStartIndex, redEndIndex).toInt(numberSystemBase)
-//                val green = hex.substring(greenStartIndex, greenEndIndex).toInt(numberSystemBase)
-//                val blue = hex.substring(blueStartIndex, blueEndIndex).toInt(numberSystemBase)
-//                Color(red, green, blue)
-//            }
             else -> {
                 throw IllegalArgumentException("Invalid color format. Couldn't parse the string $hexWithPrefix")
             }

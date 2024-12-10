@@ -191,8 +191,8 @@ object PdfUtil {
             val blueInteger = (blueNormalized * 255).toInt()
 
             /** Add alpha value as FF (fully opaque)
-                This is needed because [PdfColor] doesn't store alpha but MeasureLib uses colors
-                with alpha */
+             * This is needed because [com.lowagie.text.pdf.PdfColor] doesn't store alpha but
+             * MeasureLib uses colors with alpha */
             val alpha = 255
 
             // Return the color in hexadecimal format as #AARRGGBB
