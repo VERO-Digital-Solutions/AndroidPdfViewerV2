@@ -71,7 +71,7 @@ object AnnotationManager {
                 relationsArray.add(documentationDict)
             }
             rectAnnotation.apply {
-                val color: Color = parseHexColor(colorHex)
+                val color: Color = convertFromColorHexToColor(colorHex)
                 setColor(color)
                 put(PdfName("relations"), relationsArray)
             }
@@ -98,26 +98,42 @@ object AnnotationManager {
         return isAdded
     }
 
-    private fun parseHexColor(hexWithPrefix: String): Color {
+    /** Converts the color hex string received from MeasureLib to [Color] */
+    private fun convertFromColorHexToColor(hexWithPrefix: String): Color {
         val hex = hexWithPrefix.removePrefix("#")
+        val numberSystemBase = 16
         return when (hex.length) {
             8 -> {
-                // Handle #AARRGGBB format
-                val alpha = hex.substring(0, 2).toInt(16)
-                val red = hex.substring(2, 4).toInt(16)
-                val green = hex.substring(4, 6).toInt(16)
-                val blue = hex.substring(6, 8).toInt(16)
-                Color(red, green, blue, alpha)
-            }
-            6 -> {
-                // Handle #RRGGBB format
-                val red = hex.substring(0, 2).toInt(16)
-                val green = hex.substring(2, 4).toInt(16)
-                val blue = hex.substring(4, 6).toInt(16)
+                /** Start and end indices for #AARRGGBB format
+                Skip indices [0, 1] because [PdfColor] doesn't store alpha */
+                val redStartIndex = 2
+                val redEndIndex = 4
+                val greenStartIndex = 4
+                val greenEndIndex = 6
+                val blueStartIndex = 6
+                val blueEndIndex = 8
+
+                val red = hex.substring(redStartIndex, redEndIndex).toInt(numberSystemBase)
+                val green = hex.substring(greenStartIndex, greenEndIndex).toInt(numberSystemBase)
+                val blue = hex.substring(blueStartIndex, blueEndIndex).toInt(numberSystemBase)
                 Color(red, green, blue)
             }
+//            6 -> {
+//                // Start and end indices for #RRGGBB format
+//                val redStartIndex = 0
+//                val redEndIndex = 2
+//                val greenStartIndex = 2
+//                val greenEndIndex = 4
+//                val blueStartIndex = 4
+//                val blueEndIndex = 6
+//
+//                val red = hex.substring(redStartIndex, redEndIndex).toInt(numberSystemBase)
+//                val green = hex.substring(greenStartIndex, greenEndIndex).toInt(numberSystemBase)
+//                val blue = hex.substring(blueStartIndex, blueEndIndex).toInt(numberSystemBase)
+//                Color(red, green, blue)
+//            }
             else -> {
-                throw IllegalArgumentException("Invalid color format")
+                throw IllegalArgumentException("Invalid color format. Couldn't parse the string $hexWithPrefix")
             }
         }
     }

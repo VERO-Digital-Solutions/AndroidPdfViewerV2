@@ -166,7 +166,7 @@ object PdfUtil {
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
-        val colorHex: String = getExtractedColor(annotation)
+        val colorHex: String = getExtractedColorHex(annotation)
 
         return SquareAnnotation(
             squareAnnotationPoints,
@@ -174,26 +174,29 @@ object PdfUtil {
             colorHex
         )
     }
-    /** Extracts the color from annotation and returns it as a hex string */
-    private fun getExtractedColor(annotation: PdfDictionary): String {
-        // Color array - rgb
+    /** Extracts the color from a PDF annotation and returns it as a hex string */
+    private fun getExtractedColorHex(annotation: PdfDictionary): String {
+        // RGB color array
         val colorArray = annotation.getAsArray(PdfName.C)
         if (colorArray.size() == 3) {
-            // Extract RGB components (values between 0.0 and 1.0)
-            val red = colorArray.getAsNumber(0).floatValue()
-            val green = colorArray.getAsNumber(1).floatValue()
-            val blue = colorArray.getAsNumber(2).floatValue()
+            /** Extract the RGB values which are normalized to the range [0.0, 1.0]
+            where 0.0 means the color is not present and 1.0 means the color is fully present */
+            val redNormalized = colorArray.getAsNumber(0).floatValue()
+            val greenNormalized = colorArray.getAsNumber(1).floatValue()
+            val blueNormalized = colorArray.getAsNumber(2).floatValue()
 
-            // Convert to 0-255 range
-            val r = (red * 255).toInt()
-            val g = (green * 255).toInt()
-            val b = (blue * 255).toInt()
+            // Convert to integers in the [0, 255] range
+            val redInteger = (redNormalized * 255).toInt()
+            val greenInteger = (greenNormalized * 255).toInt()
+            val blueInteger = (blueNormalized * 255).toInt()
 
-            // Hardcode the alpha value as FF (fully opaque)
+            /** Add alpha value as FF (fully opaque)
+                This is needed because [PdfColor] doesn't store alpha but MeasureLib uses colors
+                with alpha */
             val alpha = 255
 
-            // Return the color in hex format
-            return "#%02X%02X%02X%02X".format(alpha, r, g, b)
+            // Return the color in hexadecimal format as #AARRGGBB
+            return "#%02X%02X%02X%02X".format(alpha, redInteger, greenInteger, blueInteger)
         }
         return  ""
     }
@@ -355,7 +358,7 @@ object PdfUtil {
                     annotation.points,
                     pdfFile,
                     (annotation as SquareAnnotation).relations,
-                    annotation.colorHex
+                    annotation.colorHex,
                 )
 
                 else -> logError(TAG, "Annotation $annotation is not recognised")
