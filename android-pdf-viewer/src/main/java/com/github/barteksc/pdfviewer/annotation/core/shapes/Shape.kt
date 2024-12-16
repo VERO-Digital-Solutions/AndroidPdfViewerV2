@@ -16,7 +16,8 @@ open class Shape(
     @Transient open val type: String = "",
     @Transient open val points: List<PointF> = emptyList(),
     open val relations: Relations? = null,
-    open val edges: List<Edge> = emptyList()
+    open val edges: List<Edge> = emptyList(),
+    open val colorHex: String = "",
 ) {
     companion object {
         val TAG: String = PdfUtil.javaClass.simpleName
@@ -27,7 +28,8 @@ open class Shape(
             val points = points.map { it.convertCoordinatesFrom(pageHeight) }
             return SquareAnnotation(
                 points = points,
-                relations = relations
+                relations = relations,
+                colorHex = colorHex,
             )
         }
 
@@ -65,10 +67,10 @@ open class Shape(
                 "unit" to "",
                 "distance" to jsonNull,
                 "name" to "",
-                "colorCode" to ""
             )
         }.toJsonArray(),
-        "relations" to gson.toJsonTree(relations)
+        "relations" to gson.toJsonTree(relations),
+        "color" to colorHex,
     )
 }
 

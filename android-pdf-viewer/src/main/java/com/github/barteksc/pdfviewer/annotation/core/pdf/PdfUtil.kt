@@ -166,10 +166,39 @@ object PdfUtil {
         val relationsArray: PdfArray? =
             annotation.getAsArray(PdfName("relations"))
 
+        val colorHex: String = getExtractedColorHex(annotation)
+
         return SquareAnnotation(
             squareAnnotationPoints,
-            relations = getExtractedRelations(relationsArray)
+            relations = getExtractedRelations(relationsArray),
+            colorHex
         )
+    }
+    /** Extracts the color from a PDF annotation and returns it as a hex string */
+    private fun getExtractedColorHex(annotation: PdfDictionary): String {
+        // RGB color array
+        val colorArray = annotation.getAsArray(PdfName.C)
+        if (colorArray.size() == 3) {
+            /** Extract the RGB values which are normalized to the range [0.0, 1.0]
+            where 0.0 means the color is not present and 1.0 means the color is fully present */
+            val redNormalized = colorArray.getAsNumber(0).floatValue()
+            val greenNormalized = colorArray.getAsNumber(1).floatValue()
+            val blueNormalized = colorArray.getAsNumber(2).floatValue()
+
+            // Convert to integers in the [0, 255] range
+            val redInteger = (redNormalized * 255).toInt()
+            val greenInteger = (greenNormalized * 255).toInt()
+            val blueInteger = (blueNormalized * 255).toInt()
+
+            /** Add alpha value as FF (fully opaque)
+             * This is needed because [com.lowagie.text.pdf.PdfColor] doesn't store alpha but
+             * MeasureLib uses colors with alpha */
+            val alpha = 255
+
+            // Return the color in hexadecimal format as #AARRGGBB
+            return "#%02X%02X%02X%02X".format(alpha, redInteger, greenInteger, blueInteger)
+        }
+        return  ""
     }
 
     private fun getExtractedLinkAnnotation(
@@ -328,7 +357,8 @@ object PdfUtil {
                 AnnotationType.SQUARE.name -> AnnotationManager.addRectangleAnnotation(
                     annotation.points,
                     pdfFile,
-                    (annotation as SquareAnnotation).relations
+                    (annotation as SquareAnnotation).relations,
+                    annotation.colorHex,
                 )
 
                 else -> logError(TAG, "Annotation $annotation is not recognised")

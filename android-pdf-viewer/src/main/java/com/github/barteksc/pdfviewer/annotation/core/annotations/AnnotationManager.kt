@@ -30,7 +30,8 @@ object AnnotationManager {
     fun addRectangleAnnotation(
         rectCorners: List<PointF>,
         file: File,
-        relations: Relations? = null
+        relations: Relations? = null,
+        colorHex: String,
     ): Boolean {
         var isAdded = false
         try {
@@ -70,7 +71,8 @@ object AnnotationManager {
                 relationsArray.add(documentationDict)
             }
             rectAnnotation.apply {
-                setColor(Color.BLUE)
+                val color: Color = convertFromColorHexToColor(colorHex)
+                setColor(color)
                 put(PdfName("relations"), relationsArray)
             }
 
@@ -94,6 +96,34 @@ object AnnotationManager {
             e.printStackTrace()
         }
         return isAdded
+    }
+
+    /** Converts the color hex string received from MeasureLib to [Color] */
+    private fun convertFromColorHexToColor(hexWithPrefix: String): Color {
+        val hex = hexWithPrefix.removePrefix("#")
+        val numberSystemBase = 16
+        // AARRGGBB format's length
+        val aarrggbbLength = 8
+        return when (hex.length) {
+            aarrggbbLength -> {
+                /** Start and end indices for #AARRGGBB format
+                Skip indices [0, 1] because [com.lowagie.text.pdf.PdfColor] doesn't store alpha */
+                val redStartIndex = 2
+                val redEndIndex = 4
+                val greenStartIndex = 4
+                val greenEndIndex = 6
+                val blueStartIndex = 6
+                val blueEndIndex = 8
+
+                val red = hex.substring(redStartIndex, redEndIndex).toInt(numberSystemBase)
+                val green = hex.substring(greenStartIndex, greenEndIndex).toInt(numberSystemBase)
+                val blue = hex.substring(blueStartIndex, blueEndIndex).toInt(numberSystemBase)
+                Color(red, green, blue)
+            }
+            else -> {
+                throw IllegalArgumentException("Invalid color format. Couldn't parse the string $hexWithPrefix")
+            }
+        }
     }
 
     /** Removes all annotations from a given PDF file */
