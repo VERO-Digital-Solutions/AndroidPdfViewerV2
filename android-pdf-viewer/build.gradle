@@ -24,7 +24,7 @@ android {
 }
 
 group = "com.github.VERO-Digital-Solutions"
-version = "1.0.9"
+version = "04ec496"
 
 dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
