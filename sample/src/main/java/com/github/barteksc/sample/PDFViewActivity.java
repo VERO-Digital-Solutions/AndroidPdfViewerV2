@@ -26,8 +26,10 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -47,12 +49,8 @@ import com.github.barteksc.pdfviewer.listener.OnTapListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.util.Constants;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.NonConfigurationInstance;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
 import org.benjinus.pdfium.Bookmark;
 import org.benjinus.pdfium.Meta;
 
@@ -60,8 +58,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-@EActivity(R.layout.activity_main)
-@OptionsMenu(R.menu.options)
 public class PDFViewActivity extends AppCompatActivity implements OnPageChangeListener, OnLoadCompleteListener, OnErrorListener,
         OnPageErrorListener, OnTapListener, OnLongPressListener {
 
@@ -73,18 +69,14 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     PDFView.Configurator configurator = null;
 
-    @ViewById
     PDFView pdfView;
 
-    @NonConfigurationInstance
     Integer pageNumber = 0;
 
     String pdfFileName;
 
-    @NonConfigurationInstance
     Uri currUri = null;
 
-    @OptionsItem(R.id.pickFile)
     void pickFile() {
         int permissionCheck = ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE);
 
@@ -111,12 +103,13 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
-        super.onCreate(savedInstanceState, persistentState);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         this.pdfView = findViewById(R.id.pdfView);
+        displayFromAsset(SAMPLE_FILE);
     }
 
-    @AfterViews
     void afterViews() {
         pdfView.setBackgroundColor(Color.LTGRAY);
         if (currUri != null) {

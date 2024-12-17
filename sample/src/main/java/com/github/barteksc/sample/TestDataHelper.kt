@@ -25,8 +25,9 @@ class TestDataHelper {
             val corners = getMockedRectangleCorners()
             val edges = generateRectangleEdges(corners)
             val relations = getMockedRectangleRelations()
-            val rectangle = Rectangle(points = corners, edges = edges, relations = relations)
-            return listOf(rectangle)
+//            val rectangle = Rectangle(points = corners, edges = edges, relations = relations)
+//            return listOf(rectangle)
+            return emptyList()
         }
     }
 }

@@ -128,8 +128,8 @@ internal class DragPinchManager(
         return false
     }
 
-    override fun onScroll(
-        e1: MotionEvent,
+       override fun onScroll(
+        e1: MotionEvent?,
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
@@ -157,11 +157,12 @@ internal class DragPinchManager(
     }
 
     override fun onFling(
-        e1: MotionEvent,
+        e1: MotionEvent?,
         e2: MotionEvent,
         velocityX: Float,
         velocityY: Float
     ): Boolean {
+        if(e1 == null) return true
         if (!pdfView.isSwipeEnabled) {
             return false
         }
