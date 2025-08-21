@@ -1,12 +1,12 @@
 package com.github.barteksc.pdfviewer.annotation.ocg;
 
-import com.lowagie.text.pdf.PRStream;
-import com.lowagie.text.pdf.PdfArray;
-import com.lowagie.text.pdf.PdfDictionary;
-import com.lowagie.text.pdf.PdfName;
-import com.lowagie.text.pdf.PdfObject;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.PdfString;
+import org.openpdf.text.pdf.PRStream;
+import org.openpdf.text.pdf.PdfArray;
+import org.openpdf.text.pdf.PdfDictionary;
+import org.openpdf.text.pdf.PdfName;
+import org.openpdf.text.pdf.PdfObject;
+import org.openpdf.text.pdf.PdfReader;
+import org.openpdf.text.pdf.PdfString;
 
 import java.io.IOException;
 import java.util.ArrayList;
