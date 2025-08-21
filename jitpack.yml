@@ -1,0 +1,14 @@
+jdk:
+  - openjdk17
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-36.0.0
+    - android-36
+    - ndk;29.0.13599879
+
+before_install:
+  - yes | sdkmanager --licenses
+
