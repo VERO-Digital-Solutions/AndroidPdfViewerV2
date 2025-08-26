@@ -19,8 +19,9 @@
 
 package com.github.barteksc.pdfviewer.util
 
-import org.benjinus.pdfium.util.Size
-import org.benjinus.pdfium.util.SizeF
+import com.shockwave.pdfium.util.Size
+import com.shockwave.pdfium.util.SizeF
+
 
 /** From MagicalPDFViewer  */
 class PageSizeCalculator(

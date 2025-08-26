@@ -39,6 +39,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.annotation.core.shapes.Documentation;
 import com.github.barteksc.pdfviewer.listener.OnAnnotationPressListener;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
@@ -48,13 +49,11 @@ import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnTapListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
 import com.github.barteksc.pdfviewer.util.Constants;
-
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.OptionsMenu;
-import org.benjinus.pdfium.Bookmark;
-import org.benjinus.pdfium.Meta;
-
+import com.github.barteksc.pdfviewer.util.FileUtils;
+import com.shockwave.pdfium.PdfDocument;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -136,6 +135,14 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
     private void displayFromAsset(String assetFileName) {
         pdfFileName = assetFileName;
 
+        Uri uri = null;
+        try {
+            File file  = FileUtils.fileFromAsset(getApplicationContext(), assetFileName);
+            uri = Uri.fromFile(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         pdfView.fromAsset(SAMPLE_FILE)
                 .defaultPage(pageNumber)
                 .onPageChange(this)
@@ -146,6 +153,13 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
                 .onPageError(this)
                 .onTap(this)
                 .onLongPress(this)
+                .onTap(uri, true, new OnAnnotationPressListener() {
+                    @Override
+                    public void onAnnotationPressed(@org.jetbrains.annotations.Nullable Documentation documentation) {
+                        toast(getApplicationContext(), "currUri is null");
+
+                    }
+                })
                 .load();
     }
 
@@ -202,7 +216,7 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     @Override
     public void loadComplete(int nbPages) {
-        Meta meta = pdfView.getDocumentMeta();
+        PdfDocument.Meta meta = pdfView.getDocumentMeta();
         Log.e(TAG, "title = " + meta.getTitle());
         Log.e(TAG, "author = " + meta.getAuthor());
         Log.e(TAG, "subject = " + meta.getSubject());
@@ -216,8 +230,8 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
 
     }
 
-    public void printBookmarksTree(List<Bookmark> tree, String sep) {
-        for (Bookmark b : tree) {
+    public void printBookmarksTree(List<PdfDocument.Bookmark> tree, String sep) {
+        for (PdfDocument.Bookmark b : tree) {
 
             Log.e(TAG, String.format("%s %s, p %d", sep, b.getTitle(), b.getPageIdx()));
 
@@ -265,9 +279,10 @@ public class PDFViewActivity extends AppCompatActivity implements OnPageChangeLi
         // check zoom and scale
         Log.i(TAG, "zoom --> " + pdfView.getZoom() + " | scale " + pdfView.getScaleX() + " , " + pdfView.getScaleY());
         Log.i(TAG, "--------------------------------------------------");
-
         return false;
     }
+
+
 
     @Override
     public void onError(Throwable t) {

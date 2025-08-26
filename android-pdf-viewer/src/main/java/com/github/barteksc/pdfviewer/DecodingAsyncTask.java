@@ -19,10 +19,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.github.barteksc.pdfviewer.source.DocumentSource;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
+import com.shockwave.pdfium.util.Size;
 
-import org.benjinus.pdfium.PdfDocument;
-import org.benjinus.pdfium.PdfiumSDK;
-import org.benjinus.pdfium.util.Size;
 
 import java.lang.ref.WeakReference;
 
@@ -32,7 +32,7 @@ class DecodingAsyncTask extends AsyncTask<Void, Void, Throwable> {
 
 
     private Context context;
-    private PdfiumSDK pdfiumSDK;
+    private PdfiumCore pdfiumSDK;
 
     private String password;
     private DocumentSource docSource;
@@ -41,7 +41,7 @@ class DecodingAsyncTask extends AsyncTask<Void, Void, Throwable> {
     private WeakReference<PDFView> pdfViewReference;
     private PdfFile pdfFile;
 
-    DecodingAsyncTask(DocumentSource docSource, String password, int[] userPages, PDFView pdfView, PdfiumSDK pdfiumSDK) {
+    DecodingAsyncTask(DocumentSource docSource, String password, int[] userPages, PDFView pdfView, PdfiumCore pdfiumSDK) {
         this.docSource = docSource;
         this.userPages = userPages;
         this.cancelled = false;

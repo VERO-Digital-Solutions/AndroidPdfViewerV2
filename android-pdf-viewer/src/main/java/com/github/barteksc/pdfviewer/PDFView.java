@@ -24,6 +24,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -63,14 +64,11 @@ import com.github.barteksc.pdfviewer.util.FitPolicy;
 import com.github.barteksc.pdfviewer.util.MathUtils;
 import com.github.barteksc.pdfviewer.util.SnapEdge;
 import com.github.barteksc.pdfviewer.util.Util;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
+import com.shockwave.pdfium.util.Size;
+import com.shockwave.pdfium.util.SizeF;
 
-import org.benjinus.pdfium.Bookmark;
-import org.benjinus.pdfium.Link;
-import org.benjinus.pdfium.Meta;
-import org.benjinus.pdfium.PdfDocument;
-import org.benjinus.pdfium.PdfiumSDK;
-import org.benjinus.pdfium.util.Size;
-import org.benjinus.pdfium.util.SizeF;
 
 import java.io.File;
 import java.io.InputStream;
@@ -225,7 +223,7 @@ public class PDFView extends RelativeLayout {
     /**
      * Pdfium core for loading and rendering PDFs
      */
-    private PdfiumSDK pdfiumSDK;
+    private PdfiumCore pdfiumSDK;
 
     private ScrollHandle scrollHandle;
 
@@ -313,7 +311,7 @@ public class PDFView extends RelativeLayout {
         debugPaint = new Paint();
         debugPaint.setStyle(Style.STROKE);
 
-        pdfiumSDK = new PdfiumSDK();
+        pdfiumSDK = new PdfiumCore(context);
         setWillNotDraw(false);
     }
 
@@ -1357,8 +1355,9 @@ public class PDFView extends RelativeLayout {
             pageX = (int) pdfFile.getPageOffset(page, getZoom());
         }
 
-        return pdfiumSDK.mapDeviceCoordinateToPage(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
+        Point point =  pdfiumSDK.mapPageCoordsToDevice(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
                 (int) pageSize.getHeight(), 0, (int) mappedX, (int) mappedY);
+        return new PointF(point);
     }
 
     public PointF convertScreenPintsToPdfCoordinates(float x, float y) {
@@ -1389,8 +1388,10 @@ public class PDFView extends RelativeLayout {
             pageX = (int) pdfFile.getPageOffset(page, getZoom());
         }
 
-        return pdfiumSDK.mapDeviceCoordinateToPage(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
+
+        Point point =  pdfiumSDK.mapPageCoordsToDevice(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
                 (int) pageSize.getHeight(), 0, (int) mappedX, (int) mappedY);
+        return new PointF(point);
     }
 
     public PdfDocument getPdfDocument() {
@@ -1404,7 +1405,7 @@ public class PDFView extends RelativeLayout {
     /**
      * Returns null if document is not loaded
      */
-    public Meta getDocumentMeta() {
+    public PdfDocument.Meta getDocumentMeta() {
         if (pdfFile == null) {
             return null;
         }
@@ -1414,7 +1415,7 @@ public class PDFView extends RelativeLayout {
     /**
      * Will be empty until document is loaded
      */
-    public List<Bookmark> getTableOfContents() {
+    public List<PdfDocument.Bookmark> getTableOfContents() {
         if (pdfFile == null) {
             return Collections.emptyList();
         }
@@ -1424,7 +1425,7 @@ public class PDFView extends RelativeLayout {
     /**
      * Will be empty until document is loaded
      */
-    public List<Link> getLinks(int page) {
+    public List<PdfDocument.Link> getLinks(int page) {
         if (pdfFile == null) {
             return Collections.emptyList();
         }

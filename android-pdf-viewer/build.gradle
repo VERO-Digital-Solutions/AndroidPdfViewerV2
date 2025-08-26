@@ -30,11 +30,11 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
 
     // PDF engine
-    api 'com.github.VERO-Digital-Solutions:android-support-pdfium:1.0.3'
+    api 'com.github.VERO-Digital-Solutions:PdfiumAndroid:1.0.0'
 
     // OpenPDF
-    api 'com.github.librepdf:openpdf:3.0.0'
-    api 'com.github.VERO-Digital-Solutions:android-awt:1.0.0'
+    implementation 'com.github.librepdf:openpdf:2.0.5'
+    implementation 'com.github.VERO-Digital-Solutions:android-awt:1.0.0'
 
     // For deserializing shape classes, converting them to JSON string
     implementation 'com.google.code.gson:gson:2.8.9'
@@ -55,7 +55,7 @@ afterEvaluate {
             release(MavenPublication) {
                 setGroupId 'com.github.VERO-Digital-Solutions'
                 setArtifactId 'AndroidPdfViewerV2'
-                version '1.0.2'
+                version '1.0.3-rizia'
                 artifact androidSourcesJar
                 artifact bundleReleaseAar
                 // Add dependencies to the POM file
@@ -63,16 +63,17 @@ afterEvaluate {
                     def dependenciesNode = asNode().appendNode('dependencies')
                     def pdfiumDependency = dependenciesNode.appendNode('dependency')
                     pdfiumDependency.appendNode('groupId', 'com.github.VERO-Digital-Solutions')
-                    pdfiumDependency.appendNode('artifactId', 'android-support-pdfium')
-                    pdfiumDependency.appendNode('version', '1.0.1')
+                    pdfiumDependency.appendNode('artifactId', 'PdfiumAndroid')
+                    pdfiumDependency.appendNode('version', '1.0.0')
+
 
                     def openPdfDependency = dependenciesNode.appendNode('dependency')
                     openPdfDependency.appendNode('groupId', 'com.github.librepdf')
                     openPdfDependency.appendNode('artifactId', 'openpdf')
-                    openPdfDependency.appendNode('version', '1.3.23')
+                    openPdfDependency.appendNode('version', '2.0.5')
 
                     def androidAwtDependency = dependenciesNode.appendNode('dependency')
-                    androidAwtDependency.appendNode('groupId', 'com.github.andob')
+                    androidAwtDependency.appendNode('groupId', 'com.github.VERO-Digital-Solutions')
                     androidAwtDependency.appendNode('artifactId', 'android-awt')
                     androidAwtDependency.appendNode('version', '1.0.0')
                 }

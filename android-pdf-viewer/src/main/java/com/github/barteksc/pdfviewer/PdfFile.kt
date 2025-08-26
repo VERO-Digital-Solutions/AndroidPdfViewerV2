@@ -25,20 +25,17 @@ import android.util.SparseBooleanArray
 import com.github.barteksc.pdfviewer.exception.PageRenderingException
 import com.github.barteksc.pdfviewer.util.FitPolicy
 import com.github.barteksc.pdfviewer.util.PageSizeCalculator
-import org.benjinus.pdfium.Bookmark
-import org.benjinus.pdfium.Link
-import org.benjinus.pdfium.Meta
-import org.benjinus.pdfium.PdfDocument
-import org.benjinus.pdfium.PdfiumSDK
-import org.benjinus.pdfium.util.Size
-import org.benjinus.pdfium.util.SizeF
+import com.shockwave.pdfium.PdfDocument
+import com.shockwave.pdfium.PdfiumCore
+import com.shockwave.pdfium.util.Size
+import com.shockwave.pdfium.util.SizeF
 
 /** This class represents a PDF document, providing functionalities for handling pages,
  *  calculating page size and rendering page bitmap. It's an intermediary between the application
  *  code and the PDF rendering engine
  *  */
 class PdfFile internal constructor(
-    private val pdfiumSDK: PdfiumSDK?,
+    private val pdfiumSDK: PdfiumCore?,
     var pdfDocument: PdfDocument?,
     private val pageFitPolicy: FitPolicy,
     viewSize: Size,
@@ -330,16 +327,16 @@ class PdfFile internal constructor(
         )
     }
 
-    val metaData: Meta?
+    val metaData: PdfDocument.Meta?
         get() = if (pdfDocument == null) {
             null
         } else pdfiumSDK!!.getDocumentMeta(pdfDocument)
-    val bookmarks: List<Bookmark>
+    val bookmarks: List<PdfDocument.Bookmark>
         get() = if (pdfDocument == null) {
             ArrayList()
         } else pdfiumSDK!!.getTableOfContents(pdfDocument)
 
-    fun getPageLinks(pageIndex: Int): List<Link> {
+    fun getPageLinks(pageIndex: Int): List<PdfDocument.Link> {
         val docPage = documentPage(pageIndex)
         return pdfiumSDK!!.getPageLinks(pdfDocument, docPage)
     }
@@ -353,7 +350,7 @@ class PdfFile internal constructor(
         rect: RectF?
     ): RectF {
         val docPage = documentPage(pageIndex)
-        return pdfiumSDK!!.mapPageCoordinateToDevice(
+        return pdfiumSDK!!.mapRectToDevice(
             pdfDocument,
             docPage,
             startX,
