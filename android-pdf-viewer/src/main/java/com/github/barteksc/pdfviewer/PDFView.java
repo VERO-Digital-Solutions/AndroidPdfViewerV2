@@ -1355,9 +1355,9 @@ public class PDFView extends RelativeLayout {
             pageX = (int) pdfFile.getPageOffset(page, getZoom());
         }
 
-        Point point =  pdfiumSDK.mapPageCoordsToDevice(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
+        PointF point =  pdfiumSDK.mapDeviceCoordinateToPage(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
                 (int) pageSize.getHeight(), 0, (int) mappedX, (int) mappedY);
-        return new PointF(point);
+        return point;
     }
 
     public PointF convertScreenPintsToPdfCoordinates(float x, float y) {
@@ -1389,9 +1389,9 @@ public class PDFView extends RelativeLayout {
         }
 
 
-        Point point =  pdfiumSDK.mapPageCoordsToDevice(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
+        PointF point =  pdfiumSDK.mapDeviceCoordinateToPage(pdfFile.getPdfDocument(), page, pageX, pageY, (int) pageSize.getWidth(),
                 (int) pageSize.getHeight(), 0, (int) mappedX, (int) mappedY);
-        return new PointF(point);
+        return point;
     }
 
     public PdfDocument getPdfDocument() {

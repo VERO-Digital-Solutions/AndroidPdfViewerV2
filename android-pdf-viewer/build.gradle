@@ -30,7 +30,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
 
     // PDF engine
-    api 'com.github.VERO-Digital-Solutions:PdfiumAndroid:1.0.0'
+    api 'com.github.VERO-Digital-Solutions:PdfiumAndroid:1.0.1'
 
     // OpenPDF
     implementation 'com.github.librepdf:openpdf:2.0.5'
@@ -64,7 +64,7 @@ afterEvaluate {
                     def pdfiumDependency = dependenciesNode.appendNode('dependency')
                     pdfiumDependency.appendNode('groupId', 'com.github.VERO-Digital-Solutions')
                     pdfiumDependency.appendNode('artifactId', 'PdfiumAndroid')
-                    pdfiumDependency.appendNode('version', '1.0.0')
+                    pdfiumDependency.appendNode('version', '1.0.1')
 
 
                     def openPdfDependency = dependenciesNode.appendNode('dependency')
