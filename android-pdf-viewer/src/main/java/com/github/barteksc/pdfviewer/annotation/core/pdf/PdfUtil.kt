@@ -73,7 +73,6 @@ object PdfUtil {
             logError(TAG, "Couldn't get seek-able file descriptor for $pdfPath")
             return null
         }
-
         return withContext(Dispatchers.IO) {
             PdfRenderer(fd).use { renderer ->
                 val page = renderer.openPage(pageNum)
