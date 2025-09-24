@@ -316,12 +316,10 @@ object PdfUtil {
         lateinit var pngFile: File
         var pageHeight by Delegates.notNull<Int>()
         lateinit var jsonShapes: String
-
         // Assuming the pdf will have only 1 page (for now)
         val pngResult = getImageFromPdfPage(pdfPath, outputDirectory) { page, pageNum ->
             val pdfAnnotations = getAnnotationsFrom(pdfPath, pageNum = pageNum + 1)
             pageHeight = page.height
-
             val shapes = getShapesFor(pdfAnnotations, pageHeight)
             jsonShapes = shapes.toJson()
         }
